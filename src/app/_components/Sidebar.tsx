@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import localFont from "next/font/local";
 import { cn } from "~/lib/utils";
 import Link from "next/link";
-import { LogOut, Pin, PinOff } from "lucide-react";
+import { Loader2, LogOut, Pin, PinOff } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { DASHBOARD_TABS, PROFILE_TABS } from "../../config";
 import { Separator } from "~/components/ui/separator";
@@ -177,6 +177,7 @@ const Sidebar = () => {
           >
             <LogOut size={20} />
             <p>Log Out</p>
+            {isLoading && <Loader2 className="animate-spin" />}
           </div>
         </div>
       </div>

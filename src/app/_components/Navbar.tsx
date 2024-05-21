@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { DASHBOARD_TABS, PROFILE_TABS } from "../../config";
 import UserNav from "./UserNav";
 
-const Navbar = ({}: {}) => {
+const Navbar = () => {
   const pathname = usePathname();
 
   return (

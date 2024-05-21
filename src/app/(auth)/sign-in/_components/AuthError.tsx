@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 function getErrorMessage(errorCode: string) {
   let errorMessage;
@@ -66,7 +66,7 @@ export default function AuthError() {
     //   setError(getErrorMessage(errorCode));
     //   router.push(pathname + "?" + createQueryString("error"));
     // }
-  }, []);
+  }, [pathname, router, searchParams]);
   if (!error) return;
 
   return (

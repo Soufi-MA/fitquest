@@ -1,7 +1,6 @@
-import { CalendarCheck2, MapPin, Pin } from "lucide-react";
+import { CalendarCheck2, MapPin } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import React, { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import { getServerAuthSession } from "~/server/auth";
 import ProfileNav from "./_components/ProfileNav";
 

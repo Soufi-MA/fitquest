@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { ModeToggle } from "./toggle";
-import { Button, buttonVariants } from "~/components/ui/button";
-import { Bell, LogOut, Mail, Settings, User } from "lucide-react";
+import { buttonVariants } from "~/components/ui/button";
+import { Bell, Loader2, LogOut, Mail, User } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -131,6 +131,7 @@ const UserNav = () => {
             >
               <LogOut size={20} />
               <p>Log Out</p>
+              {isLoading && <Loader2 className="animate-spin" />}
             </div>
           </div>
         </PopoverContent>

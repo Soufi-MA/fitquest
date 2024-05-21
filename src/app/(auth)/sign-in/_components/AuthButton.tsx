@@ -1,6 +1,6 @@
 "use client";
 import { Loader2 } from "lucide-react";
-import { ClientSafeProvider, signIn } from "next-auth/react";
+import { signIn, type ClientSafeProvider } from "next-auth/react";
 import Image from "next/image";
 import React, { useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -11,14 +11,14 @@ const AuthButton = ({ provider }: { provider: ClientSafeProvider }) => {
   const [isLoading, setIsloading] = useState<boolean>(false);
 
   const searchParams = useSearchParams();
-  const callbackUrl = `${searchParams.get("callbackUrl") || `${process.env.NEXT_PUBLIC_SERVER_URL}/dashboard`}`;
+  const callbackUrl = `${searchParams.get("callbackUrl") ?? `${process.env.NEXT_PUBLIC_SERVER_URL}/dashboard`}`;
 
   return (
     <div className="flex flex-grow" key={provider.name}>
       <Button
         onClick={async () => {
           setIsloading(true);
-          const data = await signIn(provider.id, {
+          await signIn(provider.id, {
             callbackUrl,
             redirect: false,
           });

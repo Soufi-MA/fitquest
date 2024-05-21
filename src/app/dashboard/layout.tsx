@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import Navigation from "../_components/Navigation";
 import Navbar from "../_components/Navbar";
 

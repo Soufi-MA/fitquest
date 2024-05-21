@@ -1,18 +1,16 @@
 import {
   Apple,
   Bell,
-  Contact,
   Dumbbell,
   LayoutDashboard,
-  LucideIcon,
+  type LucideIcon,
   NotebookText,
-  Settings,
   Sliders,
   Trophy,
   User,
   Users,
 } from "lucide-react";
-import { IconType } from "react-icons/lib";
+import { type IconType } from "react-icons/lib";
 
 export interface NAVIGATION {
   id: number;

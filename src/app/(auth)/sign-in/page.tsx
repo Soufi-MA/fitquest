@@ -1,7 +1,7 @@
 import { getProviders } from "next-auth/react";
 import localFont from "next/font/local";
 import Image from "next/image";
-import React from "react";
+import React, { Suspense } from "react";
 import { cn } from "~/lib/utils";
 import AuthButton from "./_components/AuthButton";
 import AuthError from "./_components/AuthError";
@@ -38,11 +38,15 @@ const page = async () => {
                   <div className="pb-5 text-sm">
                     Choose provider to sign-in.
                   </div>
-                  <AuthError />
+                  <Suspense>
+                    <AuthError />
+                  </Suspense>
                   <div className="flex items-start justify-center gap-3 self-stretch p-0">
                     {providers &&
                       Object.values(providers).map((provider) => (
-                        <AuthButton provider={provider} />
+                        <Suspense key={provider.id}>
+                          <AuthButton provider={provider} />
+                        </Suspense>
                       ))}
                     {/* <div className="flex flex-grow">
                       <Button
