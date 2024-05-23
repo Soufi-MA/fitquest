@@ -1,28 +1,29 @@
-import { getToken } from "next-auth/jwt";
-// import { withAuth } from "next-auth/middleware";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { NextRequestWithAuth, withAuth } from "next-auth/middleware";
 
-export default async function middleware(req: NextRequest) {
-  const token = await getToken({ req });
-  const isAuthenticated = !!token;
+export default withAuth(
+  function middleware(request: NextRequestWithAuth) {
+    console.log(request.nextauth.token);
+    if (
+      request.nextUrl.pathname.startsWith("/dashboard") &&
+      request.nextauth.token?.isSetup === false
+    ) {
+      return NextResponse.redirect(new URL("/signup-flow", request.url));
+    }
+    if (
+      request.nextUrl.pathname.startsWith("/sign-in") &&
+      request.nextauth.token
+    ) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
+  },
+);
 
-  if (req.nextUrl.pathname.startsWith("/sign-in") && isAuthenticated) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-
-  if (req.nextUrl.pathname.startsWith("/dashboard") && !isAuthenticated) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
-  }
-
-  // const authMiddleware = withAuth({
-  //   pages: {
-  //     signIn: `/sign-in`,
-  //   },
-  //   callbacks: {
-  //     authorized: ({ token }) => !!token,
-  //   },
-  // });
-
-  // return authMiddleware(req, event);
-}
-// export const config = { matcher: ["/dashboard:path*", "/sign-in"] };
+export const config = {
+  matcher: ["/dashboard"],
+};
