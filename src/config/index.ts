@@ -61,7 +61,7 @@ export const PROFILE_TABS: NAVIGATION[] = [
   },
   {
     id: 2,
-    href: "/dashboard/notifications",
+    href: "/dashboard/profile/notifications",
     label: "Notifications",
     icon: Bell,
   },
@@ -73,7 +73,7 @@ export const PROFILE_TABS: NAVIGATION[] = [
   },
   {
     id: 4,
-    href: "dashboard/profile/customizations",
+    href: "/dashboard/profile/customizations",
     label: "Cutomizations",
     icon: Sliders,
   },
