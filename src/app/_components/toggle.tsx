@@ -18,7 +18,7 @@ export function ModeToggle() {
         onClick={() => theme != "dark" && setTheme("dark")}
         variant="outline"
         size="icon"
-        className="h-11 w-11 rounded-full border-0 bg-muted text-muted-foreground dark:bg-background dark:text-foreground"
+        className="h-11 w-11 rounded-full border-0 bg-muted text-muted-foreground hover:bg-muted dark:bg-background dark:text-foreground dark:hover:bg-background"
       >
         <Moon />
       </Button>
@@ -26,7 +26,7 @@ export function ModeToggle() {
         onClick={() => theme != "light" && setTheme("light")}
         variant="outline"
         size="icon"
-        className="h-11 w-11 rounded-full border-0 bg-background text-foreground dark:bg-muted dark:text-muted-foreground"
+        className="h-11 w-11 rounded-full border-0 bg-background text-foreground hover:bg-background dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-foreground"
       >
         <Sun />
       </Button>
