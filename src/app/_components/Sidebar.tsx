@@ -43,7 +43,7 @@ const Sidebar = () => {
         setCollapsed(pinned ? false : true);
       }}
       className={cn(
-        "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden bg-muted transition-all ease-in-out max-md:border-t md:sticky md:top-0 md:h-screen md:w-[265px] md:duration-300",
+        "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden bg-muted transition-all ease-in-out max-md:border-t md:sticky md:top-0 md:h-screen md:w-[265px] md:border-r md:duration-300",
         { "md:w-20": collapsed },
       )}
     >
