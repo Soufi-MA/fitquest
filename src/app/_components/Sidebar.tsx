@@ -43,7 +43,7 @@ const Sidebar = () => {
         setCollapsed(pinned ? false : true);
       }}
       className={cn(
-        "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden bg-muted transition-all ease-in-out md:sticky md:top-0 md:h-screen md:w-[265px] md:duration-300",
+        "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden bg-muted transition-all ease-in-out max-md:border-t md:sticky md:top-0 md:h-screen md:w-[265px] md:duration-300",
         { "md:w-20": collapsed },
       )}
     >
@@ -81,7 +81,7 @@ const Sidebar = () => {
               onClick={() => setPinned(false)}
               size={26}
               className={cn(
-                "rounded-full border border-muted-foreground p-1 text-muted",
+                "cursor-pointer rounded-full border border-muted-foreground p-1 text-muted",
                 {
                   hidden: collapsed,
                   "text-muted-foreground": !collapsed,
@@ -154,7 +154,7 @@ const Sidebar = () => {
               <item.icon className="h-full max-h-6 w-full min-w-5 max-w-6 md:h-5 md:w-5" />
               <p
                 className={cn(
-                  "text-xs xs:text-sm sm:text-base md:duration-300",
+                  "text-nowrap text-xs xs:text-sm sm:text-base md:duration-300",
                   {
                     "md:text-muted": collapsed && pathname !== item.href,
                     "md:text-primary": collapsed && pathname === item.href,
@@ -175,8 +175,17 @@ const Sidebar = () => {
             onClick={() => signOutHandler()}
             className="flex h-10 w-full cursor-pointer items-center justify-start gap-2 overflow-x-hidden rounded px-4 duration-300 hover:bg-foreground/10 hover:text-foreground"
           >
-            <LogOut size={20} />
-            <p>Log Out</p>
+            <LogOut className="h-full max-h-6 w-full min-w-5 max-w-6 md:h-5 md:w-5" />
+            <p
+              className={cn(
+                "text-nowrap text-xs xs:text-sm sm:text-base md:duration-300",
+                {
+                  "md:text-muted": collapsed,
+                },
+              )}
+            >
+              Log Out
+            </p>
             {isLoading && <Loader2 className="animate-spin" />}
           </div>
         </div>
