@@ -23,14 +23,15 @@ declare module "next-auth" {
     user: {
       id: string;
       // ...other properties
-      // role: UserRole;
+      isSetup: boolean;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    // ...other properties
+    // role: UserRole;
+    isSetup: boolean;
+  }
 }
 
 /**
@@ -39,15 +40,21 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
-  // callbacks: {
-  //   session: ({ session, user }) => ({
-  //     ...session,
-  //     user: {
-  //       ...session.user,
-  //       id: user.id,
-  //     },
-  //   }),
-  // },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) token.isSetup = user.isSetup;
+      return token;
+    },
+    async session({ session, token }) {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          isSetup: token.isSetup,
+        },
+      };
+    },
+  },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
     GoogleProvider({
@@ -71,11 +78,6 @@ export const authOptions: NextAuthOptions = {
     signIn: "/sign-in",
     error: "/sign-in",
     signOut: "#",
-  },
-  events: {
-    signIn: (data) => {
-      console.log(data);
-    },
   },
 };
 
