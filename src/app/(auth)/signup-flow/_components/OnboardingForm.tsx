@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { InputHTMLAttributes, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -11,68 +11,287 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  FinishSetupValidator,
+  TFinishSetupValidator,
+} from "~/lib/validators/userValidators";
+import { api } from "~/trpc/react";
+import { toast } from "sonner";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { cn } from "~/lib/utils";
+import { Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const OnboardingForm = () => {
-  const [heightUnit, setHeightUnit] = useState("cm");
-  const [weightUnit, setWeightUnit] = useState("kg");
+  const { update } = useSession();
+  const router = useRouter();
+  const form = useForm<TFinishSetupValidator>({
+    resolver: zodResolver(FinishSetupValidator),
+    defaultValues: {
+      lengthUnit: "cm",
+      weightUnit: "kg",
+    },
+  });
+
+  const ftRef = useRef<HTMLInputElement>(null);
+  const inchRef = useRef<HTMLInputElement>(null);
+  const cmRef = useRef<HTMLInputElement>(null);
+
+  const { mutate, isPending } = api.users.finishSetup.useMutation({
+    onError: (e) => {
+      toast.error(e.message);
+    },
+
+    onSuccess: async () => {
+      toast.success("Saved successfully");
+      await update();
+      router.replace("/dashboard");
+    },
+  });
+
+  const onSubmit = (data: TFinishSetupValidator) => {
+    mutate(data);
+  };
+
+  const handleFtToCm = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "ft" | "inch",
+  ) => {
+    if (ftRef.current && inchRef.current && cmRef.current) {
+      const ftValue = Number(ftRef.current.value);
+      const inchValue = Number(inchRef.current.value);
+      cmRef.current.value = Math.round(
+        ftValue * 30.48 + inchValue * 2.54,
+      ).toString();
+
+      form.setValue("height", Math.round(ftValue * 30.48 + inchValue * 2.54));
+      form.trigger();
+      if (isNaN(parseFloat(e.currentTarget.value))) {
+        e.currentTarget.value = "";
+        return;
+      }
+      if (type === "ft") {
+        e.currentTarget.value = Number(ftRef.current.value).toString();
+      } else {
+        e.currentTarget.value = Number(inchRef.current.value).toString();
+      }
+    }
+  };
+
+  const handleCmToFt = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cmValue = Number(e.currentTarget.value);
+    if (ftRef.current && inchRef.current) {
+      const ftValue = Math.floor(cmValue / 2.54 / 12);
+      const inchValue = cmValue / 2.54 - 12 * ftValue;
+      ftRef.current.value = ftValue.toFixed();
+      inchRef.current.value = inchValue.toFixed();
+      form.setValue("height", cmValue);
+      form.trigger();
+      if (isNaN(parseFloat(e.currentTarget.value))) {
+        e.currentTarget.value = "";
+        return;
+      }
+      e.currentTarget.value = cmValue.toString();
+    }
+  };
 
   return (
-    <div className="flex w-full flex-col gap-2 p-4 md:px-8">
-      <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="gender">Gender</Label>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+    <Form {...form}>
+      <form
+        className="flex w-full select-none flex-col gap-2 p-4 md:px-8"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel htmlFor="gender">Gender</FormLabel>
+                <FormControl>
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="birthDay"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel>Birth Day</FormLabel>
+                <FormControl>
+                  <Input
+                    className="cursor-pointer"
+                    type="date"
+                    {...form.register("birthDay", {
+                      valueAsDate: true,
+                    })}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="height"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <FormLabel>Height</FormLabel>
+                  <FormField
+                    control={form.control}
+                    name="lengthUnit"
+                    render={({ field }) => (
+                      <FormControl>
+                        <Select
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="flex h-7 w-[80px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="min-w-0">
+                            <SelectItem value="cm">cm</SelectItem>
+                            <SelectItem value="ft">ft</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                <FormControl>
+                  <div className="flex gap-1">
+                    <Input
+                      className="hidden"
+                      type="number"
+                      {...form.register("height", {
+                        valueAsNumber: true,
+                        validate: {
+                          positive: (v) => v > 0,
+                        },
+                      })}
+                      // disabled
+                    />
+                    <Input
+                      type="number"
+                      className={cn({
+                        hidden: form.getValues("lengthUnit") === "ft",
+                      })}
+                      disabled={form.getValues("lengthUnit") === "ft"}
+                      onChange={handleCmToFt}
+                      max={300}
+                      step={"any"}
+                      ref={cmRef}
+                    />
+
+                    <Input
+                      className={cn({
+                        hidden: form.getValues("lengthUnit") === "cm",
+                      })}
+                      disabled={form.getValues("lengthUnit") === "cm"}
+                      id="heightFeet"
+                      type="number"
+                      placeholder="6'"
+                      ref={ftRef}
+                      step={1}
+                      onChange={(e) => handleFtToCm(e, "ft")}
+                      max={10}
+                    />
+                    <Input
+                      className={cn({
+                        hidden: form.getValues("lengthUnit") === "cm",
+                      })}
+                      disabled={form.getValues("lengthUnit") === "cm"}
+                      id="heightInches"
+                      type="number"
+                      placeholder="2''"
+                      ref={inchRef}
+                      step={1}
+                      onChange={(e) => handleFtToCm(e, "inch")}
+                      max={11}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="weight"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <FormLabel>Weight</FormLabel>
+                  <FormField
+                    control={form.control}
+                    name="weightUnit"
+                    render={({ field }) => (
+                      <FormControl>
+                        <Select
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="flex h-7 w-[80px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="min-w-0">
+                            <SelectItem value="kg">kg</SelectItem>
+                            <SelectItem value="lb">lb</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                <FormControl>
+                  <Input
+                    type="number"
+                    {...form.register("weight", {
+                      valueAsNumber: true,
+                      validate: {
+                        positive: (v) => v > 0,
+                      },
+                    })}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="birthday">Birthday</Label>
-          <Input id="birthday" required type="date" />
-        </div>
-        <div className="space-y-2">
-          <Label className="flex items-center gap-2" htmlFor="height">
-            Height
-            <Select>
-              <SelectTrigger className="flex h-7 w-[80px]">
-                <SelectValue placeholder="cm" />
-              </SelectTrigger>
-              <SelectContent className="min-w-0">
-                <SelectItem value="cm">cm</SelectItem>
-                <SelectItem value="ft">ft</SelectItem>
-              </SelectContent>
-            </Select>
-          </Label>
-          {/* <Input id="height" placeholder="172cm" type="number" /> */}
-          <div className="flex gap-1">
-            <Input id="heightFeet" type="number" placeholder="6'" />
-            <Input id="heightInches" type="number" placeholder="2''" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label className="flex items-center gap-2" htmlFor="weight">
-            Weight
-            <Select>
-              <SelectTrigger className="flex h-7 w-[80px]">
-                <SelectValue placeholder="kg" />
-              </SelectTrigger>
-              <SelectContent className="min-w-0">
-                <SelectItem value="kg">kg</SelectItem>
-                <SelectItem value="lb">lb</SelectItem>
-              </SelectContent>
-            </Select>
-          </Label>
-          <Input id="weight" placeholder="53kg" type="number" />
-        </div>
-      </div>
-      <Button>Continue</Button>
-    </div>
+        <Button type="submit" disabled={!form.formState.isValid || isPending}>
+          {isPending ? <Loader2 className="animate-spin" /> : "Continue"}
+        </Button>
+      </form>
+    </Form>
   );
 };
 
