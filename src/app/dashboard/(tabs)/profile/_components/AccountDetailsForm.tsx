@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User } from "@prisma/client";
+import { type User } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
@@ -16,7 +16,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -27,7 +26,7 @@ import {
 import { cn } from "~/lib/utils";
 import {
   AccountDetailsValidator,
-  TAccountDetailsValidator,
+  type TAccountDetailsValidator,
 } from "~/lib/validators/userValidators";
 import { api } from "~/trpc/react";
 
@@ -41,7 +40,7 @@ const AccountDetailsForm = ({ user }: { user: User }) => {
         toast.error(e.message);
       },
 
-      onSuccess: (data) => {
+      onSuccess: () => {
         toast.success("Updated successfully");
       },
     });
@@ -63,7 +62,7 @@ const AccountDetailsForm = ({ user }: { user: User }) => {
     mutate(data);
   };
 
-  const handleFtToCm = (
+  const handleFtToCm = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "ft" | "inch",
   ) => {
@@ -75,20 +74,22 @@ const AccountDetailsForm = ({ user }: { user: User }) => {
       ).toString();
 
       form.setValue("height", Math.round(ftValue * 30.48 + inchValue * 2.54));
-      form.trigger();
-      if (isNaN(parseFloat(e.currentTarget.value))) {
-        e.currentTarget.value = "";
-        return;
-      }
-      if (type === "ft") {
-        e.currentTarget.value = Number(ftRef.current.value).toString();
-      } else {
-        e.currentTarget.value = Number(inchRef.current.value).toString();
+      await form.trigger();
+      if (e.currentTarget) {
+        if (!e.currentTarget.value) {
+          e.currentTarget.value = "";
+          return;
+        }
+        if (type === "ft") {
+          e.currentTarget.value = Number(ftRef.current.value).toString();
+        } else {
+          e.currentTarget.value = Number(inchRef.current.value).toString();
+        }
       }
     }
   };
 
-  const handleCmToFt = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCmToFt = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const cmValue = Number(e.currentTarget.value);
     if (ftRef.current && inchRef.current) {
       const ftValue = Math.floor(cmValue / 2.54 / 12);
@@ -96,12 +97,14 @@ const AccountDetailsForm = ({ user }: { user: User }) => {
       ftRef.current.value = ftValue.toFixed();
       inchRef.current.value = inchValue.toFixed();
       form.setValue("height", cmValue);
-      form.trigger();
-      if (isNaN(parseFloat(e.currentTarget.value))) {
-        e.currentTarget.value = "";
-        return;
+      await form.trigger();
+      if (e.currentTarget) {
+        if (!e.currentTarget.value) {
+          e.currentTarget.value = "";
+          return;
+        }
+        e.currentTarget.value = cmValue.toString();
       }
-      e.currentTarget.value = cmValue.toString();
     }
   };
 
@@ -150,7 +153,7 @@ const AccountDetailsForm = ({ user }: { user: User }) => {
           <FormField
             control={form.control}
             name="birthDay"
-            render={({ field }) => (
+            render={() => (
               <FormItem className="space-y-2">
                 <FormLabel>Birth Day</FormLabel>
                 <FormControl>
@@ -169,7 +172,7 @@ const AccountDetailsForm = ({ user }: { user: User }) => {
           <FormField
             control={form.control}
             name="height"
-            render={({ field }) => (
+            render={() => (
               <FormItem className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FormLabel>Height</FormLabel>
@@ -259,7 +262,7 @@ const AccountDetailsForm = ({ user }: { user: User }) => {
           <FormField
             control={form.control}
             name="weight"
-            render={({ field }) => (
+            render={() => (
               <FormItem className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FormLabel>Weight</FormLabel>

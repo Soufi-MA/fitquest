@@ -1,9 +1,8 @@
 "use client";
 
-import React, { InputHTMLAttributes, useRef } from "react";
+import React, { useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -15,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FinishSetupValidator,
-  TFinishSetupValidator,
+  type TFinishSetupValidator,
 } from "~/lib/validators/userValidators";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
@@ -63,7 +62,7 @@ const OnboardingForm = () => {
     mutate(data);
   };
 
-  const handleFtToCm = (
+  const handleFtToCm = async (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "ft" | "inch",
   ) => {
@@ -75,20 +74,22 @@ const OnboardingForm = () => {
       ).toString();
 
       form.setValue("height", Math.round(ftValue * 30.48 + inchValue * 2.54));
-      form.trigger();
-      if (isNaN(parseFloat(e.currentTarget.value))) {
-        e.currentTarget.value = "";
-        return;
-      }
-      if (type === "ft") {
-        e.currentTarget.value = Number(ftRef.current.value).toString();
-      } else {
-        e.currentTarget.value = Number(inchRef.current.value).toString();
+      await form.trigger();
+      if (e.currentTarget) {
+        if (!e.currentTarget.value) {
+          e.currentTarget.value = "";
+          return;
+        }
+        if (type === "ft") {
+          e.currentTarget.value = Number(ftRef.current.value).toString();
+        } else {
+          e.currentTarget.value = Number(inchRef.current.value).toString();
+        }
       }
     }
   };
 
-  const handleCmToFt = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCmToFt = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const cmValue = Number(e.currentTarget.value);
     if (ftRef.current && inchRef.current) {
       const ftValue = Math.floor(cmValue / 2.54 / 12);
@@ -96,12 +97,14 @@ const OnboardingForm = () => {
       ftRef.current.value = ftValue.toFixed();
       inchRef.current.value = inchValue.toFixed();
       form.setValue("height", cmValue);
-      form.trigger();
-      if (isNaN(parseFloat(e.currentTarget.value))) {
-        e.currentTarget.value = "";
-        return;
+      await form.trigger();
+      if (e.currentTarget) {
+        if (!e.currentTarget.value) {
+          e.currentTarget.value = "";
+          return;
+        }
+        e.currentTarget.value = cmValue.toString();
       }
-      e.currentTarget.value = cmValue.toString();
     }
   };
 
@@ -141,7 +144,7 @@ const OnboardingForm = () => {
           <FormField
             control={form.control}
             name="birthDay"
-            render={({ field }) => (
+            render={() => (
               <FormItem className="space-y-2">
                 <FormLabel>Birth Day</FormLabel>
                 <FormControl>
@@ -160,7 +163,7 @@ const OnboardingForm = () => {
           <FormField
             control={form.control}
             name="height"
-            render={({ field }) => (
+            render={() => (
               <FormItem className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FormLabel>Height</FormLabel>
@@ -246,7 +249,7 @@ const OnboardingForm = () => {
           <FormField
             control={form.control}
             name="weight"
-            render={({ field }) => (
+            render={() => (
               <FormItem className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FormLabel>Weight</FormLabel>
