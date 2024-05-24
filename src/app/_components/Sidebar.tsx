@@ -19,7 +19,7 @@ const helveticaRounded = localFont({
 const useMediaQuery = (width: number) => {
   const [targetReached, setTargetReached] = useState(false);
 
-  const updateTarget = useCallback((e: { matches: any }) => {
+  const updateTarget = useCallback((e: MediaQueryListEvent) => {
     if (e.matches) {
       setTargetReached(true);
     } else {
@@ -37,7 +37,7 @@ const useMediaQuery = (width: number) => {
     }
 
     return () => media.removeListener(updateTarget);
-  }, []);
+  }, [updateTarget, width]);
 
   return targetReached;
 };

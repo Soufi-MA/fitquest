@@ -1,4 +1,3 @@
-import { X } from "lucide-react";
 import { z } from "zod";
 
 export const FinishSetupValidator = z.object({

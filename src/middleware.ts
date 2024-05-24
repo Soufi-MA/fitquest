@@ -1,7 +1,6 @@
-import { NextFetchEvent, NextResponse } from "next/server";
-import { NextRequestWithAuth, withAuth } from "next-auth/middleware";
+import { type NextFetchEvent, NextResponse } from "next/server";
+import { type NextRequestWithAuth, withAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
-import { getSession } from "next-auth/react";
 
 export default async function middleware(
   request: NextRequestWithAuth,
@@ -17,13 +16,6 @@ export default async function middleware(
 
   const authMiddleware = withAuth(
     async (req: NextRequestWithAuth) => {
-      const requestForNextAuth = {
-        headers: {
-          cookie: req.headers.get("cookie"),
-        },
-      };
-
-      // const session = await getSession({ req: requestForNextAuth as any });
       const isSetup = req.nextauth?.token?.isSetup ?? false;
 
       if (pathname.startsWith("/dashboard")) {
