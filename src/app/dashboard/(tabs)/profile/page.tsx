@@ -1,18 +1,13 @@
 import React from "react";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
+import AccountDetailsForm from "./_components/AccountDetailsForm";
+import { api } from "~/trpc/server";
 
-const page = () => {
+const page = async () => {
+  const user = await api.users.getUser();
+  if (!user) return "loading user";
   return (
     <div className="flex flex-col rounded-md bg-muted py-4 shadow-md">
       <div className="flex flex-col px-8 pb-4">
@@ -20,40 +15,7 @@ const page = () => {
         <p className="text-muted-foreground">Manage your FitQuest account</p>
       </div>
       <Separator />
-      <div className="grid grid-cols-1 gap-2 px-8 py-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" placeholder="Soufi-MA" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="gender">Gender</Label>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="age">Age</Label>
-          <Input id="age" placeholder="Male" type="number" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="height">Height</Label>
-          <Input id="height" placeholder="172cm" type="number" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="weight">Weight</Label>
-          <Input id="weight" placeholder="53kg" type="number" />
-        </div>
-      </div>
-      <div className="flex justify-end px-8 pb-4">
-        <Button type="submit">Save Changes</Button>
-      </div>
+      <AccountDetailsForm user={user} />
       <Separator />
       <div className="flex flex-col gap-4 px-8 pt-4">
         <p className="text-2xl font-semibold">Delete Account</p>
