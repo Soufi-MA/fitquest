@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import localFont from "next/font/local";
 import { cn } from "~/lib/utils";
 import Link from "next/link";
@@ -16,12 +16,39 @@ const helveticaRounded = localFont({
   src: "../../../public/fonts/helvetica/helvetica-rounded-bold.woff",
 });
 
+const useMediaQuery = (width: number) => {
+  const [targetReached, setTargetReached] = useState(false);
+
+  const updateTarget = useCallback((e: { matches: any }) => {
+    if (e.matches) {
+      setTargetReached(true);
+    } else {
+      setTargetReached(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia(`(max-width: ${width}px)`);
+    media.addListener(updateTarget);
+
+    // Check on mount (callback is not called until a change occurs)
+    if (media.matches) {
+      setTargetReached(true);
+    }
+
+    return () => media.removeListener(updateTarget);
+  }, []);
+
+  return targetReached;
+};
+
 const Sidebar = () => {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const [pinned, setPinned] = useState<boolean>(true);
   const router = useRouter();
   const [isLoading, setIsloading] = useState<boolean>(false);
+  const isBreakPoint = useMediaQuery(920);
 
   const signOutHandler = async () => {
     setIsloading(true);
@@ -34,13 +61,17 @@ const Sidebar = () => {
     }
   };
 
+  useEffect(() => {
+    setCollapsed(isBreakPoint);
+  }, [isBreakPoint]);
+
   return (
     <div
       onMouseEnter={() => {
-        setCollapsed(false);
+        !isBreakPoint && setCollapsed(false);
       }}
       onMouseLeave={() => {
-        setCollapsed(pinned ? false : true);
+        !isBreakPoint && setCollapsed(pinned ? false : true);
       }}
       className={cn(
         "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden bg-muted transition-all ease-in-out max-md:border-t md:sticky md:top-0 md:h-screen md:w-[265px] md:border-r md:duration-300",
@@ -109,7 +140,7 @@ const Sidebar = () => {
               key={item.id}
               href={item.href}
               className={cn(
-                "flex w-full flex-col items-center justify-center gap-1 overflow-x-hidden rounded-md px-4 max-md:h-16 md:h-10 md:max-h-16 md:flex-row md:justify-start md:gap-2 md:rounded md:duration-300",
+                "group flex w-full flex-col items-center justify-center gap-1 overflow-x-hidden rounded-md px-4 max-md:h-16 md:h-10 md:max-h-16 md:flex-row md:justify-start md:gap-2 md:rounded md:duration-300",
                 {
                   "bg-primary text-primary-foreground md:drop-shadow-primary":
                     pathname === item.href,
@@ -124,8 +155,8 @@ const Sidebar = () => {
                 className={cn(
                   "text-xs xs:text-sm sm:text-base md:duration-300",
                   {
-                    "md:text-muted": collapsed && pathname !== item.href,
-                    "md:text-primary": collapsed && pathname === item.href,
+                    "md:text-transparent md:group-hover:text-transparent":
+                      collapsed,
                   },
                 )}
               >
@@ -156,8 +187,8 @@ const Sidebar = () => {
                 className={cn(
                   "text-nowrap text-xs xs:text-sm sm:text-base md:duration-300",
                   {
-                    "md:text-muted": collapsed && pathname !== item.href,
-                    "md:text-primary": collapsed && pathname === item.href,
+                    "md:text-transparent md:group-hover:text-transparent":
+                      collapsed,
                   },
                 )}
               >
