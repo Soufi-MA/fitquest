@@ -22,14 +22,12 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
       isSetup: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
-    // ...other properties
-    // role: UserRole;
+    id: string;
     isSetup: boolean;
   }
 }
@@ -41,8 +39,14 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) token.isSetup = user.isSetup;
+    async jwt({ token, user, trigger }) {
+      if (trigger === "update") {
+        token.isSetup = true;
+      }
+
+      if (user) {
+        token.isSetup = user.isSetup;
+      }
       return token;
     },
     async session({ session, token }) {
@@ -50,6 +54,7 @@ export const authOptions: NextAuthOptions = {
         ...session,
         user: {
           ...session.user,
+          id: token.sub,
           isSetup: token.isSetup,
         },
       };
