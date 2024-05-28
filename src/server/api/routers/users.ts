@@ -4,6 +4,7 @@ import {
   AccountDetailsValidator,
   FinishSetupValidator,
 } from "~/lib/validators/userValidators";
+import { z } from "zod";
 
 export const userRouter = createTRPCRouter({
   getUser: protectedProcedure.query(async ({ ctx }) => {
@@ -82,5 +83,27 @@ export const userRouter = createTRPCRouter({
       });
 
       return user;
+    }),
+
+  searchFood: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      if (!input) return [];
+
+      const foods = await ctx.db.food.findMany({
+        where: {
+          OR: [
+            {
+              description: {
+                startsWith: input,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+        take: 10,
+      });
+
+      return foods;
     }),
 });
