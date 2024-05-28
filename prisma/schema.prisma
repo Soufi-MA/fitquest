@@ -38,8 +38,8 @@ enum Plan {
 
 // Necessary for Next auth
 model Account {
-    id                       String @id @default(auto()) @map("_id") @db.ObjectId
-    userId                   String @db.ObjectId
+    id                       String  @id @default(auto()) @map("_id") @db.ObjectId
+    userId                   String  @db.ObjectId
     type                     String
     provider                 String
     providerAccountId        String
@@ -57,37 +57,79 @@ model Account {
 }
 
 model Session {
-    id           String @id @default(auto()) @map("_id") @db.ObjectId
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
     sessionToken String   @unique
-    userId       String @db.ObjectId
+    userId       String   @db.ObjectId
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id            String @id @default(auto()) @map("_id") @db.ObjectId
+    id            String      @id @default(auto()) @map("_id") @db.ObjectId
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     gender        Gender?
     birthDay      DateTime?
-    lengthUnit    LengthUnit @default(cm)
-    weightUnit    WeightUnit @default(kg)
+    lengthUnit    LengthUnit  @default(cm)
+    weightUnit    WeightUnit  @default(kg)
     height        Float?
     weight        Float?
-    isSetup       Boolean @default(false)
+    isSetup       Boolean     @default(false)
     accounts      Account[]
     sessions      Session[]
-    createdAt     DateTime? @default(now())
-    plan          Plan @default(Free)
+    foodEntries   FoodEntry[]
+    createdAt     DateTime?   @default(now())
+    plan          Plan        @default(Free)
 }
 
 model VerificationToken {
-    id String @id @default(auto()) @map("_id") @db.ObjectId
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
     identifier String
     token      String   @unique
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+type FoodNutrient {
+    nCode    String
+    name     String
+    unitName String
+    amount   Float
+}
+
+type FoodCategory {
+    cId         Int
+    description String
+}
+
+type FoodPortion {
+    gramWeight         Float
+    sequenceNumber     Int
+    portionDescription String
+}
+
+model Food {
+    id            String         @id @default(auto()) @map("_id") @db.ObjectId
+    description   String
+    foodNutrients FoodNutrient[]
+    foodCategory  FoodCategory
+    foodPortions  FoodPortion[]
+}
+
+type FoodData {
+    foodId            String         @db.ObjectId
+    selectedPortions  String
+    quantity          String
+    comsumedNutrients FoodNutrient[]
+}
+
+model FoodEntry {
+    id       String     @id @default(auto()) @map("_id") @db.ObjectId
+    userId   String     @db.ObjectId
+    foodData FoodData[]
+    time     DateTime
+    user     User       @relation(fields: [userId], references: [id])
 }
