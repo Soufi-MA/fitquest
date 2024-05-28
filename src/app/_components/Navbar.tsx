@@ -10,7 +10,7 @@ const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <div className="sticky top-0 flex h-20 items-center justify-between border-b bg-background px-8">
+    <div className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 md:h-20 md:px-8">
       <p className="text-base font-semibold text-foreground md:text-3xl">
         {[...DASHBOARD_TABS, ...PROFILE_TABS].find(
           (tab) => tab.href === pathname,
