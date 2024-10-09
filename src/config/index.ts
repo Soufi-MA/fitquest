@@ -10,12 +10,11 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { type IconType } from "react-icons/lib";
 
 export interface NAVIGATION {
   id: number;
   href: string;
-  icon: LucideIcon | IconType;
+  icon: LucideIcon;
   label: string;
 }
 

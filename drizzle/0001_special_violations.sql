@@ -1,0 +1,1 @@
+ALTER TABLE "fitquest_food_portion" ALTER COLUMN "gram_weight" DROP NOT NULL;

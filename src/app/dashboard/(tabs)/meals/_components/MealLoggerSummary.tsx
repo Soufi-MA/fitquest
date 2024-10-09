@@ -1,36 +1,16 @@
 "use client";
 import React, { useRef, useState } from "react";
-import { buttonVariants } from "~/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Drawer, DrawerContent, DrawerTrigger } from "~/components/ui/drawer";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import colors from "tailwind.config";
-import { cn } from "~/lib/utils";
-import { Label } from "~/components/ui/label";
-import { Input } from "~/components/ui/input";
-import { api } from "~/trpc/react";
-
-type FoodType = {
-  id: string;
-  description: string;
-} & {
-  foodNutrients: {
-    nCode: string;
-    name: string;
-    unitName: string;
-    amount: number;
-  }[];
-  foodCategory: {
-    cId: number;
-    description: string;
-  };
-  foodPortions: {
-    gramWeight: number;
-    sequenceNumber: number;
-    portionDescription: string;
-  }[];
-};
+// import colors from "tailwind.config";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Food } from "@/db/schema/food";
+import { fetchFoods } from "./actions";
 
 const consumed = {
   calories: 1588,
@@ -46,33 +26,38 @@ const goal = {
   fat: 75,
 };
 
-const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
+const MealLoggerSummary = ({
+  selectedDay,
+}: {
+  selectedDay: Date | undefined;
+}) => {
   const searchRef = useRef<HTMLInputElement>(null);
-  const [selected, setSelected] = useState<FoodType>();
+  const [selected, setSelected] = useState<Food>();
 
-  const { mutate: fetchFoods, data: foods } =
-    api.users.searchFood.useMutation();
+  const [foods, setFoods] = useState<Food[] | null>();
+  // const { mutate: fetchFoods, data: foods } =
+  //   api.users.searchFood.useMutation();
 
   const DialogDrawerContent = () => (
     <div>
       <p className="py-4 text-center text-2xl font-semibold">Add Food</p>
-      <p>{selectedDay.toDateString()}</p>
+      <p>{selectedDay?.toDateString()}</p>
       <div className="flex flex-col gap-2">
         <Label>Search Food</Label>
         <Input
           ref={searchRef}
-          onChange={(e) => {
-            console.log(e.currentTarget.value);
-            fetchFoods(e.currentTarget.value);
+          onChange={async (e) => {
+            const foods = await fetchFoods(e.target.value);
+            setFoods(foods);
           }}
         />
       </div>
       {foods && foods.length > 0 && (
         <div className="absolute top-40 mt-1 flex flex-col rounded-md border bg-background">
-          {foods.map((food) => {
-            const kal = food.foodNutrients.find(
-              (nutrient) => nutrient.nCode === "208",
-            )?.amount;
+          {foods.map((food: Food) => {
+            // const kal = food.foodNutrients.find(
+            //   (nutrient) => nutrient.nCode === "208"
+            // )?.amount;
             return (
               <div
                 onClick={() => {
@@ -83,7 +68,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
                 key={food.id}
               >
                 <p>{food.description}</p>
-                <p>{kal + " Cal"}</p>
+                {/*<p>{kal + " Cal"}</p>*/}
               </div>
             );
           })}
@@ -99,7 +84,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
         <ResponsiveContainer className="flex-1">
           <PieChart width={200} height={200}>
             <text
-              fill={colors.theme.extend.colors.foreground}
+              // fill={colors.theme.extend.colors.foreground}
               x={"50%"}
               y={"30%"}
               textAnchor="middle"
@@ -109,7 +94,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
               Calories
             </text>
             <text
-              fill={colors.theme.extend.colors.foreground}
+              // fill={colors.theme.extend.colors.foreground}
               x={"50%"}
               y={"50%"}
               textAnchor="middle"
@@ -119,7 +104,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
               {consumed.calories}
             </text>
             <text
-              fill={colors.theme.extend.colors.foreground}
+              // fill={colors.theme.extend.colors.foreground}
               x={"50%"}
               y={"65%"}
               textAnchor="middle"
@@ -150,11 +135,11 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
               {[1, 2].map((_, i) => (
                 <Cell
                   key={i}
-                  fill={
-                    i === 0
-                      ? colors.theme.extend.colors.primary.DEFAULT
-                      : colors.theme.extend.colors.background
-                  }
+                  // fill={
+                  //   i === 0
+                  //     ? colors.theme.extend.colors.primary.DEFAULT
+                  //     : colors.theme.extend.colors.background
+                  // }
                 />
               ))}
             </Pie>
@@ -167,7 +152,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
             <DrawerTrigger
               className={cn(
                 buttonVariants(),
-                "absolute right-2 top-0 flex justify-between gap-1 md:hidden",
+                "absolute right-2 top-0 flex justify-between gap-1 md:hidden"
               )}
             >
               <Plus />
@@ -181,7 +166,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
             <DialogTrigger
               className={cn(
                 buttonVariants(),
-                "absolute right-2 top-0 flex justify-between gap-1 max-md:hidden",
+                "absolute right-2 top-0 flex justify-between gap-1 max-md:hidden"
               )}
             >
               <Plus />
@@ -202,7 +187,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
           <ResponsiveContainer>
             <PieChart>
               <text
-                fill={colors.theme.extend.colors.foreground}
+                // fill={colors.theme.extend.colors.foreground}
                 x={"50%"}
                 y={"40%"}
                 textAnchor="middle"
@@ -212,7 +197,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
                 {consumed.carbs}
               </text>
               <text
-                fill={colors.theme.extend.colors.foreground}
+                // fill={colors.theme.extend.colors.foreground}
                 x={"50%"}
                 y={"60%"}
                 textAnchor="middle"
@@ -244,11 +229,11 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
                 {[1, 2].map((_, i) => (
                   <Cell
                     key={i}
-                    fill={
-                      i === 0
-                        ? "#90ee90"
-                        : colors.theme.extend.colors.background
-                    }
+                    // fill={
+                    //   i === 0
+                    //     ? "#90ee90"
+                    //     : colors.theme.extend.colors.background
+                    // }
                   />
                 ))}
               </Pie>
@@ -261,7 +246,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
           <ResponsiveContainer>
             <PieChart>
               <text
-                fill={colors.theme.extend.colors.foreground}
+                // fill={colors.theme.extend.colors.foreground}
                 x={"50%"}
                 y={"40%"}
                 textAnchor="middle"
@@ -271,7 +256,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
                 {consumed.protein}
               </text>
               <text
-                fill={colors.theme.extend.colors.foreground}
+                // fill={colors.theme.extend.colors.foreground}
                 x={"50%"}
                 y={"60%"}
                 textAnchor="middle"
@@ -303,11 +288,11 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
                 {[1, 2].map((_, i) => (
                   <Cell
                     key={i}
-                    fill={
-                      i === 0
-                        ? "#FF0000"
-                        : colors.theme.extend.colors.background
-                    }
+                    // fill={
+                    //   i === 0
+                    //     ? "#FF0000"
+                    //     : colors.theme.extend.colors.background
+                    // }
                   />
                 ))}
               </Pie>
@@ -320,7 +305,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
           <ResponsiveContainer>
             <PieChart>
               <text
-                fill={colors.theme.extend.colors.foreground}
+                // fill={colors.theme.extend.colors.foreground}
                 x={"50%"}
                 y={"40%"}
                 textAnchor="middle"
@@ -330,7 +315,7 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
                 {consumed.fat}
               </text>
               <text
-                fill={colors.theme.extend.colors.foreground}
+                // fill={colors.theme.extend.colors.foreground}
                 x={"50%"}
                 y={"60%"}
                 textAnchor="middle"
@@ -362,11 +347,11 @@ const MealLoggerSummary = ({ selectedDay }: { selectedDay: Date }) => {
                 {[1, 2].map((_, i) => (
                   <Cell
                     key={i}
-                    fill={
-                      i === 0
-                        ? "#ADD8E6"
-                        : colors.theme.extend.colors.background
-                    }
+                    // fill={
+                    //   i === 0
+                    //     ? "#ADD8E6"
+                    //     : colors.theme.extend.colors.background
+                    // }
                   />
                 ))}
               </Pie>

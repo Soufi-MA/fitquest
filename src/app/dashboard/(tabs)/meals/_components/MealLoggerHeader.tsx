@@ -2,20 +2,20 @@
 
 import React, { useState } from "react";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "~/components/ui/popover";
-import { Calendar } from "~/components/ui/calendar";
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { cn, getStartOfWeek } from "~/lib/utils";
-import { Separator } from "~/components/ui/separator";
+import { cn, getStartOfWeek } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 interface MealLoggerHeaderProps {
-  selectedDay: Date;
-  setSelectedDay: React.Dispatch<React.SetStateAction<Date>>;
+  selectedDay: Date | undefined;
+  setSelectedDay: React.Dispatch<React.SetStateAction<Date | undefined>>;
 }
 
 const weekMap: Record<string, string> = {
@@ -58,7 +58,7 @@ const MealLoggerHeader = ({
                 variant={"outline"}
                 className={cn(
                   "w-[140px] pl-3 text-left font-normal",
-                  !selectedDay && "text-muted-foreground",
+                  !selectedDay && "text-muted-foreground"
                 )}
               >
                 {selectedDay ? (
@@ -80,8 +80,8 @@ const MealLoggerHeader = ({
                     setSelectedDay(date);
                   }
                 }}
-                disabled={(date) => date < new Date("1900-01-01")}
-                initialFocus
+                disabled={(date: Date) => date < new Date("1900-01-01")}
+                required
               />
             </PopoverContent>
           </Popover>
@@ -112,8 +112,8 @@ const MealLoggerHeader = ({
                   "col-span-1 flex h-full cursor-pointer flex-col items-center justify-center rounded-md bg-muted py-2",
                   {
                     "bg-primary":
-                      selectedDay.toDateString() === thisDay.toDateString(),
-                  },
+                      selectedDay?.toDateString() === thisDay.toDateString(),
+                  }
                 )}
               >
                 <p className="text-sm text-foreground">

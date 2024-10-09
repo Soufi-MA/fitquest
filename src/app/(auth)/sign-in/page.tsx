@@ -1,26 +1,15 @@
-import { getProviders } from "next-auth/react";
-import localFont from "next/font/local";
 import Image from "next/image";
-import React, { Suspense } from "react";
-import { cn } from "~/lib/utils";
-import AuthButton from "./_components/AuthButton";
-import AuthError from "./_components/AuthError";
-const helveticaRounded = localFont({
-  src: "../../../../public/fonts/helvetica/helvetica-rounded-bold.woff",
-});
-const page = async () => {
-  const providers = await getProviders();
+import React from "react";
+import { cn } from "@/lib/utils";
+import { dummySignin } from "./actions";
+import { Button } from "@/components/ui/button";
 
+const page = async () => {
   return (
     <div className="flex h-screen flex-col items-center justify-start p-10 lg:p-12">
       <div className="flex items-center gap-2 md:duration-300">
         <Image src={"/logo.png"} alt="logo" height={32} width={32} />
-        <p
-          className={cn(
-            "text-5xl text-foreground md:duration-150",
-            helveticaRounded.className,
-          )}
-        >
+        <p className={cn("text-5xl text-foreground md:duration-150")}>
           <span className="text-primary md:duration-150">Fit</span>
           Quest
         </p>
@@ -38,55 +27,10 @@ const page = async () => {
                   <div className="pb-5 text-sm">
                     Choose provider to sign-in.
                   </div>
-                  <Suspense>
-                    <AuthError />
-                  </Suspense>
                   <div className="flex items-start justify-center gap-3 self-stretch p-0">
-                    {providers &&
-                      Object.values(providers).map((provider) => (
-                        <Suspense key={provider.id}>
-                          <AuthButton provider={provider} />
-                        </Suspense>
-                      ))}
-                    {/* <div className="flex flex-grow">
-                      <Button
-                        variant={"outline"}
-                        className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border bg-[#006aff] px-2 py-6 hover:bg-[rgba(0,106,255,0.8)]"
-                      >
-                        <Image
-                          src={"https://authjs.dev/img/providers/facebook.svg"}
-                          alt=""
-                          height={24}
-                          width={24}
-                        />
-                      </Button>
-                    </div>
-                    <div className="flex flex-grow">
-                      <Button
-                        variant={"outline"}
-                        className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border bg-[#24292f] px-2 py-6 hover:bg-[rgba(36,41,47,0.8)]"
-                      >
-                        <Image
-                          src={"https://authjs.dev/img/providers/github.svg"}
-                          alt=""
-                          height={24}
-                          width={24}
-                        />
-                      </Button>
-                    </div>
-                    <div className="flex flex-grow">
-                      <Button
-                        variant={"outline"}
-                        className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border bg-white px-2 py-6 hover:bg-[rgba(255,255,255,0.8)]"
-                      >
-                        <Image
-                          src={"https://authjs.dev/img/providers/google.svg"}
-                          alt=""
-                          height={24}
-                          width={24}
-                        />
-                      </Button>
-                    </div> */}
+                    <form action={dummySignin}>
+                      <Button type="submit">Test Sign In</Button>
+                    </form>
                   </div>
                 </div>
               </div>

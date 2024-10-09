@@ -1,12 +1,12 @@
 import React from "react";
-import { Button } from "~/components/ui/button";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Separator } from "~/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import AccountDetailsForm from "./_components/AccountDetailsForm";
-import { api } from "~/trpc/server";
+import { getCurrentUser } from "@/lib/session";
 
 const page = async () => {
-  const user = await api.users.getUser();
+  const user = await getCurrentUser();
   if (!user) return "loading user";
   return (
     <div className="flex flex-col rounded-md bg-muted py-4 shadow-md">

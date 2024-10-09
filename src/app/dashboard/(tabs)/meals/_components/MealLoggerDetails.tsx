@@ -1,8 +1,12 @@
 import React from "react";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { Separator } from "~/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
-const MealLoggerDetails = ({ selectedDay }: { selectedDay: Date }) => {
+const MealLoggerDetails = ({
+  selectedDay,
+}: {
+  selectedDay: Date | undefined;
+}) => {
   return (
     <>
       <div className="flex w-full justify-center lg:hidden">
@@ -10,7 +14,7 @@ const MealLoggerDetails = ({ selectedDay }: { selectedDay: Date }) => {
       </div>
       <div className="flex flex-1 max-lg:hidden">
         <ScrollArea className="max-h-[412px] w-full">
-          <p>{selectedDay.toDateString()}</p>
+          <p>{selectedDay?.toDateString()}</p>
           <div className="flex w-20 min-w-20 flex-col items-center border-r py-2">
             {[
               6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1,

@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1728475183478,
+      "tag": "0000_nebulous_may_parker",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1728475567261,
+      "tag": "0001_special_violations",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1728479678846,
+      "tag": "0002_soft_psynapse",
+      "breakpoints": true
+    }
+  ]
+}

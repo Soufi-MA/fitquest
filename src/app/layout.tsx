@@ -1,11 +1,10 @@
-import "~/styles/globals.css";
+import "./globals.css";
+import localFont from "next/font/local";
+import { Providers } from "./providers";
 
-import { GeistSans } from "geist/font/sans";
-
-import { TRPCReactProvider } from "~/trpc/react";
-import { ThemeProvider } from "../providers/theme-provider";
-import AuthSessionProvider from "~/providers/AuthSessionProvider";
-import { Toaster } from "sonner";
+const GeistSans = localFont({
+  src: "../../public/fonts/Geist/Geist[wght].woff2",
+});
 
 export const metadata = {
   title: "FitQuest",
@@ -21,21 +20,11 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${GeistSans.variable}`}
+      className={`${GeistSans.className}`}
       suppressHydrationWarning
     >
       <body>
-        <AuthSessionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <TRPCReactProvider>{children}</TRPCReactProvider>
-            <Toaster position="top-center" richColors />
-          </ThemeProvider>
-        </AuthSessionProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

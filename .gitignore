@@ -43,3 +43,6 @@ yarn-error.log*
 *.tsbuildinfo
 
 /designs
+
+# seed
+src/db/seed

@@ -1,48 +1,22 @@
-import { type NextFetchEvent, NextResponse } from "next/server";
-import { type NextRequestWithAuth, withAuth } from "next-auth/middleware";
-import { getToken } from "next-auth/jwt";
+import { verifyRequestOrigin } from "lucia";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default async function middleware(
-  request: NextRequestWithAuth,
-  event: NextFetchEvent,
-) {
-  const pathname = request.nextUrl.pathname;
-  const token = await getToken({ req: request });
-  const isAuthenticated = !!token;
-
-  if (pathname.startsWith("/sign-in") && isAuthenticated) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+export async function middleware(request: NextRequest): Promise<NextResponse> {
+  if (request.method === "GET") {
+    return NextResponse.next();
   }
 
-  const authMiddleware = withAuth(
-    async (req: NextRequestWithAuth) => {
-      const isSetup = req.nextauth?.token?.isSetup ?? false;
-
-      if (pathname.startsWith("/dashboard")) {
-        if (!isSetup) {
-          return NextResponse.redirect(new URL("/signup-flow", request.url));
-        }
-      }
-
-      if (pathname.startsWith("/signup-flow")) {
-        if (isSetup) {
-          return NextResponse.redirect(new URL("/dashboard", request.url));
-        }
-      }
-    },
-    {
-      pages: {
-        signIn: "/sign-in",
-      },
-      callbacks: {
-        authorized: ({ token }) => !!token,
-      },
-    },
-  );
-
-  return authMiddleware(request, event);
+  const originHeader = request.headers.get("Origin");
+  const hostHeader = request.headers.get("Host");
+  if (
+    !originHeader ||
+    !hostHeader ||
+    !verifyRequestOrigin(originHeader, [hostHeader])
+  ) {
+    return new NextResponse(null, {
+      status: 403,
+    });
+  }
+  return NextResponse.next();
 }
-
-export const config = {
-  matcher: ["/dashboard", "/signup-flow", "/sign-in"],
-};

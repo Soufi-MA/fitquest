@@ -1,17 +1,17 @@
+import { getCurrentUser } from "@/lib/session";
 import Link from "next/link";
-import { getServerAuthSession } from "~/server/auth";
 
 export default async function Home() {
-  const session = await getServerAuthSession();
+  const user = await getCurrentUser();
 
   return (
-    <div>
-      <div>Hi {JSON.stringify(session)}</div>
+    <div className="flex flex-col items-center justify-center gap-8 min-h-screen mx-auto">
+      <div className="text-4xl font-semibold">Hi {user?.name}</div>
       <Link
-        href={"/sign-in"}
+        href={user ? "/dashboard" : "/sign-in"}
         className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
       >
-        {session ? "Sign out" : "Sign in"}
+        {user ? "Dashboard" : "Sign in"}
       </Link>
     </div>
   );
