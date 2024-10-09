@@ -55,7 +55,7 @@ const Sidebar = () => {
         !isBreakPoint && setCollapsed(pinned ? false : true);
       }}
       className={cn(
-        "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden bg-muted transition-all ease-in-out max-md:border-t md:sticky md:top-0 md:h-screen md:w-[265px] md:border-r md:duration-300",
+        "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden transition-all ease-in-out max-md:border-t md:sticky md:top-0 md:h-screen md:w-[265px] md:border-r md:duration-300 bg-gradient-to-br from-background to-primary/20",
         { "md:w-20": collapsed }
       )}
     >
@@ -103,7 +103,7 @@ const Sidebar = () => {
               onClick={() => setPinned(true)}
               size={26}
               className={cn(
-                "rounded-full border border-muted-foreground p-1 text-muted",
+                "cursor-pointer rounded-full border border-muted-foreground p-1 text-muted",
                 {
                   hidden: collapsed,
                   "text-muted-foreground": !collapsed,
