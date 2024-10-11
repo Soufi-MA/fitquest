@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
+import { timestamp } from "drizzle-orm/pg-core";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -12,4 +13,22 @@ export function getStartOfWeek(today: Date) {
   startDate.setHours(0, 0, 0, 0);
 
   return startDate;
+}
+
+export function timestampMixin() {
+  return {
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+      mode: "date",
+    })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", {
+      withTimezone: true,
+      mode: "date",
+    })
+      .$onUpdate(() => new Date())
+      .notNull()
+      .defaultNow(),
+  };
 }

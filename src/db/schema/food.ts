@@ -4,7 +4,23 @@ import {
   decimal,
   integer,
   primaryKey,
+  uuid,
+  pgEnum,
 } from "drizzle-orm/pg-core";
+import { userTable } from "./user";
+import { timestampMixin } from "@/lib/utils";
+
+export const FoodDataType = pgEnum("data_type", [
+  "Branded",
+  "Foundation",
+  "Survey (FNDDS)",
+]);
+export const MealTypeEnum = pgEnum("meal_type", [
+  "Breakfast",
+  "Lunch",
+  "Dinner",
+  "Snack",
+]);
 
 const createTable = pgTableCreator((name) => `fitquest_${name}`);
 
@@ -28,6 +44,13 @@ export const foodTable = createTable("food", {
   id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
   description: text("description").notNull(),
   category: text("category").references(() => foodCategoryTable.description),
+  dataType: FoodDataType("data_type"),
+  servingSize: decimal("serving_size", {
+    precision: 12,
+    scale: 2,
+  }).$type<number>(),
+  servingSizeUnit: text("serving_size_unit"),
+  householdServingFullText: text("household_serving_full_text"),
 });
 
 export const foodNutrientTable = createTable(
@@ -62,7 +85,9 @@ export const foodPortionTable = createTable(
     gramWeight: decimal("gram_weight", {
       precision: 10,
       scale: 2,
-    }).$type<number>(),
+    })
+      .$type<number>()
+      .notNull(),
   },
   (table) => {
     return {
@@ -70,5 +95,31 @@ export const foodPortionTable = createTable(
     };
   }
 );
+
+export const mealTable = createTable("meal", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  mealType: MealTypeEnum("meal_type").notNull(),
+  ...timestampMixin(),
+});
+
+export const mealFoodTable = createTable("meal_food", {
+  mealId: uuid("meal_id")
+    .notNull()
+    .references(() => mealTable.id),
+  foodId: integer("food_id")
+    .notNull()
+    .references(() => foodTable.id),
+  servingText: text("serving_text").notNull(),
+  servingSize: decimal("serving_size", { precision: 10, scale: 2 })
+    .$type<number>()
+    .notNull(),
+  quantity: decimal("quantity", { precision: 10, scale: 2 })
+    .$type<number>()
+    .notNull()
+    .default(1),
+});
 
 export type Food = typeof foodTable.$inferSelect;

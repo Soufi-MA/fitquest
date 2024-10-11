@@ -10,7 +10,7 @@
     "studio": "drizzle-kit studio",
     "migration:generate": "drizzle-kit generate",
     "migration:push": "drizzle-kit push",
-    "drizzle:seed": "tsx ./src/db/seed/seed.ts"
+    "drizzle:seed": "tsx ./src/db/seed/index.ts"
   },
   "dependencies": {
     "@lucia-auth/adapter-drizzle": "^1.1.0",
