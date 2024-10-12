@@ -6,6 +6,7 @@ import {
   primaryKey,
   uuid,
   pgEnum,
+  AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { userTable } from "./user";
 import { timestampMixin } from "@/lib/utils";
@@ -30,27 +31,10 @@ export const nutrientTable = createTable("nutrient", {
   unitName: text("unit_name").notNull(),
 });
 
-export const measureUnitTable = createTable("measure_unit", {
-  id: integer("id").primaryKey(),
-  name: text("name").notNull(),
-  abbreviation: text("abbreviation").notNull(),
-});
-
-export const foodCategoryTable = createTable("food_category", {
-  description: text("description").primaryKey(),
-});
-
 export const foodTable = createTable("food", {
   id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
   description: text("description").notNull(),
-  category: text("category").references(() => foodCategoryTable.description),
   dataType: FoodDataType("data_type"),
-  servingSize: decimal("serving_size", {
-    precision: 12,
-    scale: 2,
-  }).$type<number>(),
-  servingSizeUnit: text("serving_size_unit"),
-  householdServingFullText: text("household_serving_full_text"),
 });
 
 export const foodNutrientTable = createTable(
@@ -73,28 +57,20 @@ export const foodNutrientTable = createTable(
   }
 );
 
-export const foodPortionTable = createTable(
-  "food_portion",
-  {
-    foodId: integer("food_id")
-      .notNull()
-      .references(() => foodTable.id),
-    measureUnitId: integer("measure_unit_id")
-      .notNull()
-      .references(() => measureUnitTable.id),
-    gramWeight: decimal("gram_weight", {
-      precision: 10,
-      scale: 2,
-    })
-      .$type<number>()
-      .notNull(),
-  },
-  (table) => {
-    return {
-      pk: primaryKey({ columns: [table.foodId, table.measureUnitId] }),
-    };
-  }
-);
+export const foodPortionTable = createTable("food_portion", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  foodId: integer("food_id")
+    .notNull()
+    .references(() => foodTable.id),
+  servingSize: decimal("serving_size", {
+    precision: 12,
+    scale: 2,
+  })
+    .$type<number>()
+    .notNull(),
+  servingSizeUnit: text("serving_size_unit").notNull(),
+  householdServingFullText: text("household_serving_full_text").notNull(),
+});
 
 export const mealTable = createTable("meal", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -108,14 +84,17 @@ export const mealTable = createTable("meal", {
 export const mealFoodTable = createTable("meal_food", {
   mealId: uuid("meal_id")
     .notNull()
-    .references(() => mealTable.id),
+    .references((): AnyPgColumn => mealTable.id),
   foodId: integer("food_id")
     .notNull()
     .references(() => foodTable.id),
-  servingText: text("serving_text").notNull(),
-  servingSize: decimal("serving_size", { precision: 10, scale: 2 })
+  portionId: uuid("portion_id").references(
+    (): AnyPgColumn => foodPortionTable.id
+  ),
+  multiplier: decimal("multiploer", { precision: 10, scale: 2 })
     .$type<number>()
-    .notNull(),
+    .notNull()
+    .default(1),
   quantity: decimal("quantity", { precision: 10, scale: 2 })
     .$type<number>()
     .notNull()
