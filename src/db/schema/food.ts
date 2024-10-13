@@ -7,9 +7,11 @@ import {
   uuid,
   pgEnum,
   AnyPgColumn,
+  index,
 } from "drizzle-orm/pg-core";
 import { userTable } from "./user";
 import { timestampMixin } from "@/lib/utils";
+import { sql } from "drizzle-orm";
 
 export const FoodDataType = pgEnum("data_type", [
   "Branded",
@@ -31,11 +33,20 @@ export const nutrientTable = createTable("nutrient", {
   unitName: text("unit_name").notNull(),
 });
 
-export const foodTable = createTable("food", {
-  id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
-  description: text("description").notNull(),
-  dataType: FoodDataType("data_type"),
-});
+export const foodTable = createTable(
+  "food",
+  {
+    id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
+    description: text("description").notNull(),
+    dataType: FoodDataType("data_type"),
+  },
+  (table) => ({
+    descriptionSearchIndex: index("description_search_index").using(
+      "gin",
+      sql`to_tsvector('english', ${table.description})`
+    ),
+  })
+);
 
 export const foodNutrientTable = createTable(
   "food_nutrient",
