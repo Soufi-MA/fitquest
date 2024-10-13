@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 
 interface MealLoggerHeaderProps {
   selectedDay: Date | undefined;
-  setSelectedDay: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  setSelectedDay: React.Dispatch<React.SetStateAction<Date>>;
 }
 
 const weekMap: Record<string, string> = {
