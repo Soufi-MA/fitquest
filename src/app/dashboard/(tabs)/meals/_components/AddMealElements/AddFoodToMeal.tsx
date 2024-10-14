@@ -100,47 +100,47 @@ const AddFoodToMeal = ({ formData, setFormData, setStep }: StepsProps) => {
           </li>
         ))}
       </ul>
-      <DialogFooter>
+      <DialogFooter className="flex gap-2">
         <Button type="button" onClick={() => setStep(1)}>
           Back
         </Button>
         <Button type="button" onClick={() => setStep(3)}>
           View Summary ({formData.foodEntries.length})
         </Button>
-        <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerContent
-            className="min-h-[200px] flex flex-col justify-center"
-            container={document.getElementById("dialogContainer")}
-          >
-            <DrawerTitle className="px-4 py-2 flex items-center justify-between">
-              {selectedFoodData && (
-                <>
-                  <p>{selectedFoodData.food.description}</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={"Add to favorites"}
-                  >
-                    <Heart className={`w-4 h-4 ${"text-primary"}`} />
-                  </Button>
-                </>
-              )}
-            </DrawerTitle>
-            {!selectedFoodData ? (
-              <div className="flex items-center justify-center h-[200px]">
-                <Loader2 className="animate-spin" />
-              </div>
-            ) : (
-              <AddFoodDrawer
-                foodData={selectedFoodData}
-                formData={formData}
-                setFormData={setFormData}
-                setOpen={setOpen}
-              />
-            )}
-          </DrawerContent>
-        </Drawer>
       </DialogFooter>
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerContent
+          className="min-h-[200px] flex flex-col justify-center"
+          container={document.getElementById("dialogContainer")}
+        >
+          <DrawerTitle className="px-4 py-2 flex items-center justify-between">
+            {selectedFoodData && (
+              <>
+                <p>{selectedFoodData.food.description}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={"Add to favorites"}
+                >
+                  <Heart className={`w-4 h-4 ${"text-primary"}`} />
+                </Button>
+              </>
+            )}
+          </DrawerTitle>
+          {!selectedFoodData ? (
+            <div className="flex items-center justify-center h-[200px]">
+              <Loader2 className="animate-spin" />
+            </div>
+          ) : (
+            <AddFoodDrawer
+              foodData={selectedFoodData}
+              formData={formData}
+              setFormData={setFormData}
+              setOpen={setOpen}
+            />
+          )}
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
