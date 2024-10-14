@@ -5,6 +5,8 @@ import {
   foodNutrientTable,
   foodPortionTable,
   foodTable,
+  mealFoodTable,
+  mealTable,
   nutrientTable,
 } from "@/db/schema/food";
 import { getCurrentUser } from "@/lib/session";
@@ -83,6 +85,32 @@ const LogMealSchema = z.object({
 type LogMealInput = z.infer<typeof LogMealSchema>;
 
 export const logMeal = async (data: LogMealInput) => {
-  const user = getCurrentUser();
-  console.log(data);
+  const user = await getCurrentUser();
+
+  if (!user) return { authorized: false };
+  try {
+    await db.transaction(async (tx) => {
+      const [inserted] = await db
+        .insert(mealTable)
+        .values({
+          userId: user.id,
+          mealType: data.mealType,
+        })
+        .returning({ mealId: mealTable.id });
+
+      await db.insert(mealFoodTable).values(
+        data.foods.map((food) => ({
+          foodId: food.foodId,
+          mealId: inserted.mealId,
+          servingSize: food.servingSize,
+          quantity: food.quantity,
+          portionId: food.foodPortionId,
+        }))
+      );
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
+  return { success: true };
 };
