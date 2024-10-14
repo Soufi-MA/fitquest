@@ -6,6 +6,12 @@ import { fetchFood } from "./actions";
 import SelectMealType from "./AddMealElements/SelectMealType";
 import AddFoodToMeal from "./AddMealElements/AddFoodToMeal";
 import MealSummary from "./AddMealElements/MealSummary";
+import {
+  DialogDrawer,
+  DialogDrawerContent,
+  DialogDrawerTrigger,
+} from "@/components/ui/dialog-drawer";
+import { Button } from "@/components/ui/button";
 
 type FormData = {
   mealType: string;
@@ -20,7 +26,13 @@ type FormData = {
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
 
-const AddMeal = ({ selectedDay }: { selectedDay: Date }) => {
+const AddMeal = ({
+  selectedDay,
+  setSelectedDay,
+}: {
+  selectedDay: Date;
+  setSelectedDay: (date: Date) => void;
+}) => {
   const initialForm: FormData = {
     mealType: "",
     foodEntries: [],
@@ -57,6 +69,7 @@ const AddMeal = ({ selectedDay }: { selectedDay: Date }) => {
             setFormData={setFormData}
             setStep={setStep}
             setOpen={setOpen}
+            setSelectedDay={setSelectedDay}
           />
         );
       default:
@@ -71,22 +84,26 @@ const AddMeal = ({ selectedDay }: { selectedDay: Date }) => {
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={() => {
-        setStep(1);
-        setFormData(initialForm);
-        setOpen(!open);
-      }}
-    >
-      <DialogTrigger>Add Meal</DialogTrigger>
-      <DialogContent
-        id="dialogContainer"
-        className="h-full max-h-[80vh] max-w-4xl overflow-hidden flex flex-col items-center justify-between"
+    <>
+      <DialogDrawer
+        open={open}
+        onOpenChange={() => {
+          setStep(1);
+          setFormData(initialForm);
+          setOpen(!open);
+        }}
       >
-        {render()}
-      </DialogContent>
-    </Dialog>
+        <DialogDrawerTrigger asChild>
+          <Button size={"sm"}>Add Meal</Button>
+        </DialogDrawerTrigger>
+        <DialogDrawerContent
+          id="dialogContainer"
+          className="h-full max-h-[80vh] max-w-4xl overflow-hidden flex flex-col items-center justify-between"
+        >
+          {render()}
+        </DialogDrawerContent>
+      </DialogDrawer>
+    </>
   );
 };
 
