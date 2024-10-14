@@ -10,6 +10,10 @@ import { fetchFood } from "../actions";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Apple, Coffee, Donut, Soup } from "lucide-react";
+import {
+  DialogDrawerDescription,
+  DialogDrawerTitle,
+} from "@/components/ui/dialog-drawer";
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
 type FormData = {
@@ -41,7 +45,10 @@ const SelectMealType = ({ formData, setFormData, setStep }: StepsProps) => {
 
   return (
     <div className="flex flex-col w-full h-full justify-start gap-4">
-      <DialogTitle>Select Meal Type</DialogTitle>
+      <DialogDrawerTitle>Select Meal Type</DialogDrawerTitle>
+      <DialogDrawerDescription className="hidden">
+        Description
+      </DialogDrawerDescription>
       <div className="grid grid-cols-2 items-center justify-center gap-2 flex-grow">
         {mealTypes.map((type) => (
           <Button
@@ -68,7 +75,7 @@ const SelectMealType = ({ formData, setFormData, setStep }: StepsProps) => {
           className="col-span-3"
         />
       </div>
-      <DialogFooter>
+      <DialogFooter className="flex gap-2">
         <Button
           disabled={!formData.mealType || formData.mealType.length < 3}
           type="submit"
