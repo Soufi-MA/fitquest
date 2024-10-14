@@ -12,10 +12,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn, getStartOfWeek } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import AddMeal from "./AddMeal";
 
 interface MealLoggerHeaderProps {
-  selectedDay: Date | undefined;
-  setSelectedDay: React.Dispatch<React.SetStateAction<Date>>;
+  selectedDay: Date;
+  setSelectedDay: (date: Date) => void;
 }
 
 const weekMap: Record<string, string> = {
@@ -40,62 +41,65 @@ const MealLoggerHeader = ({
         <div className="flex flex-col">
           <p className="text-lg font-semibold md:text-2xl">Meal Logger</p>
         </div>
-        <div className="flex items-center justify-between gap-1">
-          <Button
-            onClick={() => {
-              const newDate = new Date(weekStart);
-              newDate.setDate(newDate.getDate() - 7);
-              setWeekStart(newDate);
-            }}
-            variant={"outline"}
-            className="flex h-10 w-10 p-0"
-          >
-            <ChevronLeft />
-          </Button>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "w-[140px] pl-3 text-left font-normal",
-                  !selectedDay && "text-muted-foreground"
-                )}
-              >
-                {selectedDay ? (
-                  format(selectedDay, "PP")
-                ) : (
-                  <span>Pick a date</span>
-                )}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={selectedDay}
-                onSelect={(date) => {
-                  if (date) {
-                    const newDate = new Date(date);
-                    setWeekStart(getStartOfWeek(newDate));
-                    setSelectedDay(date);
-                  }
-                }}
-                disabled={(date: Date) => date < new Date("1900-01-01")}
-                required
-              />
-            </PopoverContent>
-          </Popover>
-          <Button
-            onClick={() => {
-              const newDate = new Date(weekStart);
-              newDate.setDate(newDate.getDate() + 7);
-              setWeekStart(newDate);
-            }}
-            variant={"outline"}
-            className="h-10 w-10 p-0"
-          >
-            <ChevronRight />
-          </Button>
+        <div className="flex flex-col sm:flex-row items-end sm:items-center justify-center gap-2">
+          <AddMeal selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
+          <div className="flex gap-1 items-center justify-between">
+            <Button
+              onClick={() => {
+                const newDate = new Date(weekStart);
+                newDate.setDate(newDate.getDate() - 7);
+                setWeekStart(newDate);
+              }}
+              variant={"outline"}
+              className="flex h-10 w-10 p-0"
+            >
+              <ChevronLeft />
+            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[140px] pl-3 text-left font-normal",
+                    !selectedDay && "text-muted-foreground"
+                  )}
+                >
+                  {selectedDay ? (
+                    format(selectedDay, "PP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDay}
+                  onSelect={(date) => {
+                    if (date) {
+                      const newDate = new Date(date);
+                      setWeekStart(getStartOfWeek(newDate));
+                      setSelectedDay(date);
+                    }
+                  }}
+                  disabled={(date: Date) => date < new Date("1900-01-01")}
+                  required
+                />
+              </PopoverContent>
+            </Popover>
+            <Button
+              onClick={() => {
+                const newDate = new Date(weekStart);
+                newDate.setDate(newDate.getDate() + 7);
+                setWeekStart(newDate);
+              }}
+              variant={"outline"}
+              className="h-10 w-10 p-0"
+            >
+              <ChevronRight />
+            </Button>
+          </div>
         </div>
       </div>
       <Separator />

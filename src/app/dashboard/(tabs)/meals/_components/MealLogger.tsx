@@ -6,14 +6,20 @@ import { Separator } from "@/components/ui/separator";
 import MealLoggerHeader from "./MealLoggerHeader";
 import MealLoggerSummary from "./MealLoggerSummary";
 import MealLoggerDetails from "./MealLoggerDetails";
-import AddMeal from "./AddMeal";
 
 const MealLogger = () => {
-  const [selectedDay, setSelectedDay] = useState<Date>(new Date());
+  const [selectedDay, _setSelectedDay] = useState<Date>(
+    new Date(new Date().setHours(6, 0, 0, 0))
+  );
+
+  const setSelectedDay = (date: Date) => {
+    const updatedDate = new Date(date);
+    updatedDate.setHours(6, 0, 0, 0);
+    _setSelectedDay(updatedDate);
+  };
 
   return (
     <div className="col-span-full flex flex-col rounded-md bg-gradient-to-tl from-primary/10 to-primary/20">
-      <AddMeal selectedDay={selectedDay} />
       <MealLoggerHeader
         selectedDay={selectedDay}
         setSelectedDay={setSelectedDay}
