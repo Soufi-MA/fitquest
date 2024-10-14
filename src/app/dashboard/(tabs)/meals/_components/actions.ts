@@ -10,7 +10,8 @@ import {
   nutrientTable,
 } from "@/db/schema/food";
 import { getCurrentUser } from "@/lib/session";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export const fetchFoods = async (query: string) => {
@@ -79,7 +80,7 @@ const LogMealSchema = z.object({
       servingSize: z.number(),
     })
   ),
-  selectedDay: z.date(),
+  mealTime: z.date(),
 });
 
 type LogMealInput = z.infer<typeof LogMealSchema>;
@@ -95,6 +96,7 @@ export const logMeal = async (data: LogMealInput) => {
         .values({
           userId: user.id,
           mealType: data.mealType,
+          mealTime: data.mealTime,
         })
         .returning({ mealId: mealTable.id });
 
@@ -113,4 +115,16 @@ export const logMeal = async (data: LogMealInput) => {
   }
 
   return { success: true };
+};
+
+export const fetchMealDetails = async (date: Date) => {
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  const mealDetails = await db
+    .select()
+    .from(mealTable)
+    .where(and(eq(mealTable.userId, user.id), eq(mealTable.mealTime, date)));
+
+  return mealDetails;
 };
