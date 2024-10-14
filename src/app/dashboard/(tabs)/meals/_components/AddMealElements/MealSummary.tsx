@@ -19,6 +19,7 @@ type StepsProps = {
   formData: FormData;
   setFormData: SetFormData;
   setStep: React.Dispatch<React.SetStateAction<number>>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
@@ -34,7 +35,12 @@ type FormData = {
 };
 type SetFormData = React.Dispatch<React.SetStateAction<FormData>>;
 
-const MealSummary = ({ formData, setFormData, setStep }: StepsProps) => {
+const MealSummary = ({
+  formData,
+  setFormData,
+  setStep,
+  setOpen,
+}: StepsProps) => {
   return (
     <div className="flex flex-col w-full h-full justify-start gap-4">
       <DialogTitle>Summary</DialogTitle>
@@ -143,7 +149,14 @@ const MealSummary = ({ formData, setFormData, setStep }: StepsProps) => {
                         }
                       }}
                     />
-                    <Select defaultValue="1" onValueChange={handleSelect}>
+                    <Select
+                      defaultValue={
+                        ["100", "1"].includes(foodEntry.servingSize.toString())
+                          ? foodEntry.servingSize.toString()
+                          : foodEntry.foodPortionId
+                      }
+                      onValueChange={handleSelect}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a portion" />
                       </SelectTrigger>
@@ -178,8 +191,8 @@ const MealSummary = ({ formData, setFormData, setStep }: StepsProps) => {
         </Button>
         <Button
           type="button"
-          onClick={() => {
-            logMeal({
+          onClick={async () => {
+            const result = await logMeal({
               foods: formData.foodEntries.map((foodEntry) => {
                 const foodId = foodEntry.foodData?.food.foodId;
                 const quantity = foodEntry.quantity;
@@ -195,6 +208,9 @@ const MealSummary = ({ formData, setFormData, setStep }: StepsProps) => {
               mealType: formData.mealType,
               selectedDay: formData.date,
             });
+            if (result.success) {
+              setOpen(false);
+            }
           }}
         >
           Save

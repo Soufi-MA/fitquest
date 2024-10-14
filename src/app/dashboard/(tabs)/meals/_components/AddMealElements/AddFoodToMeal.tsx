@@ -1,27 +1,11 @@
-import React, {
-  cache,
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useState,
-} from "react";
+import React, { cache, useCallback, useEffect, useState } from "react";
 import { fetchFood, fetchFoods } from "../actions";
-import {
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Heart, Loader2 } from "lucide-react";
 import AddFoodDrawer from "../AddFoodDrawer";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 type FoodResults = Awaited<ReturnType<typeof fetchFoods>>;
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
@@ -44,22 +28,27 @@ type StepsProps = {
   setStep: React.Dispatch<React.SetStateAction<number>>;
 };
 
-const AddFoodToMeal = ({
-  formData,
-  setFormData,
-  setStep,
-  setQuery,
-  foods,
-}: StepsProps & {
-  setQuery: Dispatch<SetStateAction<string>>;
-  foods: FoodResults | undefined;
-}) => {
+const AddFoodToMeal = ({ formData, setFormData, setStep }: StepsProps) => {
+  const [foods, setFoods] = useState<FoodResults | undefined>();
   const [selectedFoodData, setSelectedFoodData] = useState<FoodResult | null>(
     null
   );
+  const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
   const getFoodData = cache(fetchFood);
+  const getFoods = cache(fetchFoods);
+
+  const search = useCallback(async (searchTerm: string) => {
+    if (searchTerm.trim() === "") {
+      setFoods([]);
+      return;
+    }
+
+    const data = await getFoods(searchTerm);
+
+    setFoods(data);
+  }, []);
 
   const select = useCallback(async (id: number) => {
     if (!id) return;
@@ -69,26 +58,14 @@ const AddFoodToMeal = ({
     setSelectedFoodData(data);
   }, []);
 
-  const handleAddFood = ({
-    foodData,
-    foodPortionId,
-    quantity,
-    servingSize,
-  }: {
-    foodData: FoodResult;
-    foodPortionId: string | undefined;
-    quantity: number;
-    servingSize: number;
-  }) => {
-    setFormData({
-      ...formData,
-      foodEntries: [
-        ...formData.foodEntries,
-        { foodData, foodPortionId, quantity, servingSize },
-      ],
-    });
-    setOpen(false);
-  };
+  useEffect(() => {
+    if (query.length < 3) return;
+    const delayDebounceFn = setTimeout(() => {
+      search(query);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [query, search]);
 
   return (
     <div className="flex flex-col w-full h-full justify-start gap-4">
@@ -156,7 +133,9 @@ const AddFoodToMeal = ({
             ) : (
               <AddFoodDrawer
                 foodData={selectedFoodData}
-                handleAddFood={handleAddFood}
+                formData={formData}
+                setFormData={setFormData}
+                setOpen={setOpen}
               />
             )}
           </DrawerContent>

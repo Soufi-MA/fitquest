@@ -16,25 +16,31 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
-
-const AddFoodDrawer = ({
-  foodData,
-  handleAddFood,
-}: {
-  foodData: FoodResult;
-  handleAddFood: ({
-    foodData,
-    foodPortionId,
-    quantity,
-    servingSize,
-  }: {
+type FormData = {
+  mealType: string;
+  foodEntries: {
     foodData: FoodResult;
     foodPortionId: string | undefined;
     quantity: number;
     servingSize: number;
-  }) => void;
+  }[];
+  date: Date;
+};
+
+type SetFormData = React.Dispatch<React.SetStateAction<FormData>>;
+
+const AddFoodDrawer = ({
+  foodData,
+  formData,
+  setFormData,
+  setOpen,
+}: {
+  foodData: FoodResult;
+  formData: FormData;
+  setFormData: SetFormData;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const [servingSize, setServingSize] = useState<number>(1);
+  const [servingSize, setServingSize] = useState<number>(100);
   const [foodPortionId, setFoodPortionId] = useState<string | undefined>();
   const [quantity, setQuantity] = useState(1);
 
@@ -49,9 +55,20 @@ const AddFoodDrawer = ({
       setFoodPortionId(undefined);
     } else {
       setFoodPortionId(value);
-      const portion = portions.find((portion) => portion.id === value)!;
-      setServingSize(portion.servingSize);
+      const portion = portions.find((portion) => portion.id === value);
+      setServingSize(portion?.servingSize ?? 100);
     }
+  };
+
+  const handleAddFood = () => {
+    setFormData({
+      ...formData,
+      foodEntries: [
+        ...formData.foodEntries,
+        { foodData, foodPortionId, quantity, servingSize },
+      ],
+    });
+    setOpen(false);
   };
 
   return (
@@ -90,7 +107,7 @@ const AddFoodDrawer = ({
                   : null
               }
             />
-            <Select defaultValue="1" onValueChange={handleSelect}>
+            <Select defaultValue="100" onValueChange={handleSelect}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a portion" />
               </SelectTrigger>
@@ -112,18 +129,7 @@ const AddFoodDrawer = ({
         </div>
       </div>
       <DrawerFooter>
-        <Button
-          onClick={() =>
-            handleAddFood({
-              foodData,
-              foodPortionId,
-              quantity,
-              servingSize,
-            })
-          }
-        >
-          Add Food
-        </Button>
+        <Button onClick={() => handleAddFood()}>Add Food</Button>
       </DrawerFooter>
     </>
   );
