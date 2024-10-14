@@ -35,8 +35,6 @@ const MealLoggerSummary = ({
   const [selected, setSelected] = useState<Food>();
 
   const [foods, setFoods] = useState<Food[] | null>();
-  // const { mutate: fetchFoods, data: foods } =
-  //   api.users.searchFood.useMutation();
 
   const DialogDrawerContent = () => (
     <div>
@@ -148,34 +146,6 @@ const MealLoggerSummary = ({
         </ResponsiveContainer>
 
         <div className="relative flex flex-1 flex-col items-center justify-center">
-          <Drawer>
-            <DrawerTrigger
-              className={cn(
-                buttonVariants(),
-                "absolute right-2 top-0 flex justify-between gap-1 md:hidden"
-              )}
-            >
-              <Plus />
-              Add
-            </DrawerTrigger>
-            <DrawerContent className="flex h-[90vh] flex-col px-4 py-2 md:hidden">
-              {DialogDrawerContent()}
-            </DrawerContent>
-          </Drawer>
-          <Dialog>
-            <DialogTrigger
-              className={cn(
-                buttonVariants(),
-                "absolute right-2 top-0 flex justify-between gap-1 max-md:hidden"
-              )}
-            >
-              <Plus />
-              Add
-            </DialogTrigger>
-            <DialogContent className="flex h-[90vh] flex-col px-4 py-2 max-md:hidden">
-              {DialogDrawerContent()}
-            </DialogContent>
-          </Dialog>
           <p className="text-lg">Remaining Calories</p>
           <p className="text-2xl font-semibold">
             {goal.calories - consumed.calories}
