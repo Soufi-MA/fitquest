@@ -8,6 +8,7 @@ import {
   pgEnum,
   AnyPgColumn,
   index,
+  timestamp,
 } from "drizzle-orm/pg-core";
 import { userTable } from "./user";
 import { timestampMixin } from "@/lib/utils";
@@ -99,6 +100,7 @@ export const mealTable = createTable("meal", {
 });
 
 export const mealFoodTable = createTable("meal_food", {
+  id: uuid("id").defaultRandom().primaryKey(),
   mealId: uuid("meal_id")
     .notNull()
     .references((): AnyPgColumn => mealTable.id),
@@ -108,10 +110,9 @@ export const mealFoodTable = createTable("meal_food", {
   portionId: uuid("portion_id").references(
     (): AnyPgColumn => foodPortionTable.id
   ),
-  multiplier: decimal("multiploer", { precision: 10, scale: 2 })
+  servingSize: decimal("serving_size", { precision: 10, scale: 2 })
     .$type<number>()
-    .notNull()
-    .default(1),
+    .notNull(),
   quantity: decimal("quantity", { precision: 10, scale: 2 })
     .$type<number>()
     .notNull()
