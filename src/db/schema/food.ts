@@ -88,7 +88,13 @@ export const mealTable = createTable("meal", {
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
-  mealType: MealTypeEnum("meal_type").notNull(),
+  mealType: text("meal_type").notNull(),
+  mealTime: timestamp("meal_time", {
+    withTimezone: true,
+    mode: "date",
+  })
+    .notNull()
+    .defaultNow(),
   ...timestampMixin(),
 });
 
