@@ -96,6 +96,18 @@ export const mealTable = createTable("meal", {
   })
     .notNull()
     .defaultNow(),
+  totalCalories: decimal("total_calories", { precision: 10, scale: 2 })
+    .$type<number>()
+    .notNull(),
+  totalProtein: decimal("total_protein", { precision: 10, scale: 2 })
+    .$type<number>()
+    .notNull(),
+  totalCarbs: decimal("total_carbs", { precision: 10, scale: 2 })
+    .$type<number>()
+    .notNull(),
+  totalFats: decimal("total_fats", { precision: 10, scale: 2 })
+    .$type<number>()
+    .notNull(),
   ...timestampMixin(),
 });
 
@@ -120,3 +132,5 @@ export const mealFoodTable = createTable("meal_food", {
 });
 
 export type Food = typeof foodTable.$inferSelect;
+export type Meal = typeof mealTable.$inferInsert;
+export type MealFoods = typeof mealFoodTable.$inferInsert;

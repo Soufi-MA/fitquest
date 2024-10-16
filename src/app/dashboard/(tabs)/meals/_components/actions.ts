@@ -11,7 +11,6 @@ import {
 } from "@/db/schema/food";
 import { getCurrentUser } from "@/lib/session";
 import { and, eq, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export const fetchFoods = async (query: string) => {
@@ -72,24 +71,87 @@ export const fetchFood = async (id: number) => {
 
 const LogMealSchema = z.object({
   mealType: z.string(),
-  foods: z.array(
-    z.object({
-      foodId: z.number(),
+  foods: z
+    .object({
+      foodData: z.object({
+        food: z.object({
+          foodId: z.number(),
+          description: z.string(),
+          type: z.string().nullish(),
+        }),
+        nutrients: z
+          .object({
+            name: z.string(),
+            unit: z.string(),
+            amount: z.number(),
+          })
+          .array(),
+        portions: z
+          .object({
+            id: z.string(),
+            foodId: z.number(),
+            servingSize: z.number(),
+            servingSizeUnit: z.string(),
+            householdServingFullText: z.string(),
+          })
+          .array(),
+      }),
       foodPortionId: z.string().optional(),
       quantity: z.number(),
       servingSize: z.number(),
     })
-  ),
+    .array(),
   mealTime: z.date(),
 });
 
 type LogMealInput = z.infer<typeof LogMealSchema>;
 
+function calculateTotalNutrients(data: LogMealInput) {
+  let totalCalories = 0;
+  let totalProtein = 0;
+  let totalCarb = 0;
+  let totalFats = 0;
+
+  data.foods.forEach((foodItem) => {
+    const { foodData, quantity, servingSize } = foodItem;
+
+    foodData.nutrients.forEach((nutrient) => {
+      const { name, amount } = nutrient;
+
+      const totalAmount =
+        (amount / foodItem.servingSize) * (servingSize * quantity);
+
+      switch (name.toLowerCase()) {
+        case "energy":
+          totalCalories += totalAmount;
+          break;
+        case "protein":
+          totalProtein += totalAmount;
+          break;
+        case "carbohydrate, by difference":
+          totalCarb += totalAmount;
+          break;
+        case "total lipid (fat)":
+          totalFats += totalAmount;
+          break;
+      }
+    });
+  });
+
+  return {
+    totalCalories,
+    totalProtein,
+    totalCarb,
+    totalFats,
+  };
+}
 export const logMeal = async (data: LogMealInput) => {
   const user = await getCurrentUser();
 
   if (!user) return { authorized: false };
   try {
+    const totals = calculateTotalNutrients(data);
+
     await db.transaction(async (tx) => {
       const [inserted] = await db
         .insert(mealTable)
@@ -97,12 +159,16 @@ export const logMeal = async (data: LogMealInput) => {
           userId: user.id,
           mealType: data.mealType,
           mealTime: data.mealTime,
+          totalCalories: totals.totalCalories,
+          totalCarbs: totals.totalCarb,
+          totalFats: totals.totalFats,
+          totalProtein: totals.totalProtein,
         })
         .returning({ mealId: mealTable.id });
 
       await db.insert(mealFoodTable).values(
         data.foods.map((food) => ({
-          foodId: food.foodId,
+          foodId: food.foodData.food.foodId,
           mealId: inserted.mealId,
           servingSize: food.servingSize,
           quantity: food.quantity,

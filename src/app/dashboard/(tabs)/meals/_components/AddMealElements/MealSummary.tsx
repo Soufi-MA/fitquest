@@ -252,12 +252,12 @@ const MealSummary = ({
             onClick={async () => {
               const result = await logMeal({
                 foods: formData.foodEntries.map((foodEntry) => {
-                  const foodId = foodEntry.foodData?.food.foodId;
+                  const foodData = foodEntry.foodData;
                   const quantity = foodEntry.quantity;
                   const servingSize = foodEntry.servingSize;
                   const foodPortionId = foodEntry.foodPortionId;
                   return {
-                    foodId: foodId,
+                    foodData: foodData,
                     quantity: quantity,
                     servingSize: servingSize,
                     foodPortionId: foodPortionId,
