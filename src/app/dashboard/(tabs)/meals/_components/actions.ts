@@ -118,8 +118,7 @@ function calculateTotalNutrients(data: LogMealInput) {
     foodData.nutrients.forEach((nutrient) => {
       const { name, amount } = nutrient;
 
-      const totalAmount =
-        (amount / foodItem.servingSize) * (servingSize * quantity);
+      const totalAmount = amount * ((servingSize / 100) * quantity);
 
       switch (name.toLowerCase()) {
         case "energy":
