@@ -142,7 +142,7 @@ const MealSummary = ({
                   <div className="flex gap-2">
                     <Input
                       placeholder="Quantity"
-                      defaultValue={1}
+                      defaultValue={foodEntry.quantity}
                       onChange={(e) => {
                         if (typeof Number(e.target.value) === "number") {
                           setFormData({
