@@ -34,7 +34,7 @@ const MealLogger = () => {
   }, [selectedDay]);
 
   return (
-    <div className="col-span-full flex flex-col rounded-md bg-gradient-to-tl from-primary/10 to-primary/20">
+    <div className="col-span-full flex flex-col rounded-md bg-gradient-to-tl from-primary/10 to-primary/20 border">
       <MealLoggerHeader
         selectedDay={selectedDay}
         setSelectedDay={setSelectedDay}
