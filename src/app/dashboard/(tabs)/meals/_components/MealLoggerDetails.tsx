@@ -10,26 +10,16 @@ import { Clock, Loader2 } from "lucide-react";
 type MealDetailsResult = Awaited<ReturnType<typeof fetchMealDetails>>;
 type MealDetail = NonNullable<MealDetailsResult>[number];
 
-const MealLoggerDetails = ({ selectedDay }: { selectedDay: Date }) => {
-  const [mealDetails, setMealDetails] = useState<MealDetailsResult>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetch = async (selectedDay: Date) => {
-      setLoading(true);
-      const details = await fetchMealDetails(selectedDay);
-      setMealDetails(details);
-      setLoading(false);
-    };
-    fetch(selectedDay);
-  }, [selectedDay]);
-
+const MealLoggerDetails = ({
+  loading,
+  mealDetails,
+}: {
+  loading: boolean;
+  mealDetails: MealDetailsResult;
+}) => {
   return (
     <>
-      <div className="flex w-full justify-center lg:hidden">
-        <p>View Details</p>
-      </div>
-      <div className="flex flex-1 max-lg:hidden">
+      <div className="flex flex-1">
         <ScrollArea className="max-h-[412px] w-full">
           <div className="space-y-4 p-4 h-full">
             {loading ? (
