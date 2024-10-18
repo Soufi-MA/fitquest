@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { fetchMealDetails } from "./actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Loader2 } from "lucide-react";
+import { Clock, Ellipsis, Loader2 } from "lucide-react";
+import {
+  DialogDrawer,
+  DialogDrawerContent,
+  DialogDrawerTrigger,
+} from "@/components/ui/dialog-drawer";
+import { Button } from "@/components/ui/button";
 
 type MealDetailsResult = Awaited<ReturnType<typeof fetchMealDetails>>;
 type MealDetail = NonNullable<MealDetailsResult>[number];
@@ -46,15 +51,27 @@ const MealDetails = ({ meal }: { meal: MealDetail }) => {
     <Card>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle>{meal.mealType}</CardTitle>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Clock className="mr-1 h-4 w-4" />
-            {meal.mealTime.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true,
-            })}
+          <div className="flex gap-2 items-center">
+            <CardTitle>{meal.mealType}</CardTitle>
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Clock className="mr-1 h-4 w-4" />
+              {meal.mealTime.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </div>
           </div>
+          <DialogDrawer>
+            <DialogDrawerTrigger asChild>
+              <Button variant={"outline"} size={"icon"}>
+                <Ellipsis />
+              </Button>
+            </DialogDrawerTrigger>
+            <DialogDrawerContent>
+              <p>Edit</p>
+            </DialogDrawerContent>
+          </DialogDrawer>
         </div>
       </CardHeader>
       <CardContent>
