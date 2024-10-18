@@ -55,8 +55,8 @@ const Sidebar = () => {
         !isBreakPoint && setCollapsed(pinned ? false : true);
       }}
       className={cn(
-        "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden transition-all ease-in-out max-md:border-t md:sticky md:top-0 md:h-screen md:w-[265px] md:border-r md:duration-300 bg-gradient-to-br from-background to-primary/20",
-        { "md:w-20": collapsed }
+        "fixed bottom-0 flex w-full select-none flex-col justify-between overflow-hidden transition-all ease-in-out max-md:border-t md:sticky md:top-0 md:h-screen md:w-[265px] md:min-w-[265px] md:border-r md:duration-300 bg-gradient-to-br from-background to-primary/20",
+        { "md:w-20 md:min-w-0": collapsed }
       )}
     >
       <div>
