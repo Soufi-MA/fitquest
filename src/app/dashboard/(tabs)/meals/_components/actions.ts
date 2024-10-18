@@ -20,6 +20,17 @@ export const fetchFoods = async (query: string) => {
     .where(
       sql`to_tsvector('english', ${foodTable.description}) @@ plainto_tsquery('english', ${query})`
     )
+    .orderBy(
+      sql`
+      CASE 
+        WHEN ${foodTable.dataType} = 'Foundation' THEN 0
+        WHEN ${foodTable.dataType} = 'Survey (FNDDS)' THEN 1
+        WHEN ${foodTable.dataType} = 'Branded' THEN 2
+        ELSE 3
+      END
+    `,
+      foodTable.dataType
+    )
     .limit(10);
 
   return foods;
