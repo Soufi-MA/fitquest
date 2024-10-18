@@ -40,9 +40,9 @@ const MealLogger = () => {
         setSelectedDay={setSelectedDay}
       />
       <Separator />
-      <div className="flex w-full flex-col lg:flex-row">
-        <MealLoggerSummary selectedDay={selectedDay} />
-        <MealLoggerDetails selectedDay={selectedDay} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 w-full flex-col lg:flex-row sm:h-[412px] overflow-hidden">
+        <MealLoggerSummary mealDetails={mealDetails} />
+        <MealLoggerDetails loading={loading} mealDetails={mealDetails} />
       </div>
     </div>
   );
