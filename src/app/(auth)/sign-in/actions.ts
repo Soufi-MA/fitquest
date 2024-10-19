@@ -23,7 +23,7 @@ export const dummySignin = async () => {
       birthDay: new Date("2000-01-01"),
       gender: "Male",
       height: 180,
-      weight: 180,
+      weight: 80,
       plan: "Free",
     });
     setSession(id);
