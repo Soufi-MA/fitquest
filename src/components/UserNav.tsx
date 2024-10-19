@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { getCurrentUser, logout } from "@/lib/session";
+import { PopoverClose } from "@radix-ui/react-popover";
 
 const UserNav = async () => {
   const user = await getCurrentUser();
@@ -97,26 +98,29 @@ const UserNav = async () => {
           <Separator />
           <div className="flex flex-col gap-2 px-2">
             {PROFILE_TABS.map((item) => (
-              <Link
-                className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-md px-4 hover:bg-muted"
-                href={item.href}
-                key={item.id}
-              >
-                <item.icon size={20} />
-                <p>{item.label}</p>
-              </Link>
+              <PopoverClose key={item.id} asChild>
+                <Link
+                  className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-md px-4 hover:bg-muted"
+                  href={item.href}
+                >
+                  <item.icon size={20} />
+                  <p>{item.label}</p>
+                </Link>
+              </PopoverClose>
             ))}
           </div>
           <Separator />
           <form action={logout} className="flex flex-col gap-2 px-2">
-            <Button
-              type="submit"
-              variant={"ghost"}
-              className="flex h-10 cursor-pointer items-center gap-2 rounded-md px-4"
-            >
-              <LogOut size={20} />
-              <p>Log Out</p>
-            </Button>
+            <PopoverClose asChild>
+              <Button
+                type="submit"
+                variant={"ghost"}
+                className="flex h-10 cursor-pointer items-center gap-2 rounded-md px-4"
+              >
+                <LogOut size={20} />
+                <p>Log Out</p>
+              </Button>
+            </PopoverClose>
           </form>
         </PopoverContent>
       </Popover>
