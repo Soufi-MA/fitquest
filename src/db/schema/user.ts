@@ -114,6 +114,13 @@ export const magicLinkTable = createTable("magicLink", {
 
 export const preferenceTable = createTable("preference", {
   id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .references(() => userTable.id)
+    .notNull()
+    .unique(),
   lengthUnit: LengthUnitEnum("length_unit").notNull(),
   weightUnit: WeightUnitEnum("weight_unit").notNull(),
 });
+
+export type LengthUnits = typeof preferenceTable.$inferInsert.lengthUnit;
+export type WeightUnits = typeof preferenceTable.$inferInsert.weightUnit;
