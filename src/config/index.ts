@@ -60,20 +60,20 @@ export const PROFILE_TABS: NAVIGATION[] = [
   },
   {
     id: 2,
+    href: "/dashboard/profile/preferences",
+    label: "Preferences",
+    icon: Sliders,
+  },
+  {
+    id: 3,
     href: "/dashboard/profile/notifications",
     label: "Notifications",
     icon: Bell,
   },
   {
-    id: 3,
+    id: 4,
     href: "/dashboard/profile/billing",
     label: "Billing & Plans",
     icon: NotebookText,
-  },
-  {
-    id: 4,
-    href: "/dashboard/profile/preferences",
-    label: "Preferences",
-    icon: Sliders,
   },
 ];
