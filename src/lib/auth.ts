@@ -30,6 +30,11 @@ export const lucia = new Lucia(adapter, {
       id: attributes.id,
       name: attributes.name,
       profilePicture: attributes.profilePicture,
+      gender: attributes.gender,
+      birthDay: attributes.birthDay,
+      height: attributes.height,
+      weight: attributes.weight,
+      plan: attributes.plan,
     };
   },
 });
@@ -44,7 +49,12 @@ declare module "lucia" {
 interface DatabaseUserAttributes {
   id: number;
   name: string;
+  gender?: "Male" | "Female";
   profilePicture?: string;
+  birthDay?: Date;
+  height?: number;
+  weight?: number;
+  plan: string;
 }
 
 export const validateRequest = cache(
