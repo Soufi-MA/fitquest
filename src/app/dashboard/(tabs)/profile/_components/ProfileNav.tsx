@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const ProfileNav = () => {
   const pathname = usePathname();
   return (
-    <div className="flex flex-col items-center gap-4 md:flex-row">
+    <div className="flex flex-col items-center gap-2 md:gap-4 md:flex-row">
       {PROFILE_TABS.map((tab) => (
         <Link
           key={tab.id}
