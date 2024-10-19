@@ -72,8 +72,8 @@ export const PROFILE_TABS: NAVIGATION[] = [
   },
   {
     id: 4,
-    href: "/dashboard/profile/customizations",
-    label: "Cutomizations",
+    href: "/dashboard/profile/preferences",
+    label: "Preferences",
     icon: Sliders,
   },
 ];

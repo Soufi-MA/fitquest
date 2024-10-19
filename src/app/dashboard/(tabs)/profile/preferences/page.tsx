@@ -1,7 +1,7 @@
 import React from "react";
 
 const page = () => {
-  return <div>customizations</div>;
+  return <div>preferences</div>;
 };
 
 export default page;
