@@ -9,10 +9,25 @@ import {
   primaryKey,
 } from "drizzle-orm/pg-core";
 
-export const GenderEnum = pgEnum("gender", ["Male", "Female", "Other"]);
-export const LengthUnitEnum = pgEnum("length_unit", ["cm", "ft"]);
+export const GenderEnum = pgEnum("gender", ["Male", "Female"]);
+export const LengthUnitEnum = pgEnum("length_unit", ["cm", "in"]);
 export const WeightUnitEnum = pgEnum("weight_unit", ["kg", "lb"]);
 export const PlanEnum = pgEnum("plan", ["Premium", "Free"]);
+export const GoalTypeEnum = pgEnum("goal_type", [
+  "Weight Loss",
+  "Muscle Gain",
+  "Weight Maintenance",
+]);
+export const GoalStatusEnum = pgEnum("goal_status", [
+  "InProgress",
+  "Completed",
+  "Abandoned",
+]);
+export const GoalRateEnum = pgEnum("goal_rate", [
+  "Slow",
+  "Moderate",
+  "Aggressive",
+]);
 
 const createTable = pgTableCreator((name) => `fitquest_${name}`);
 
@@ -36,6 +51,27 @@ export const userTable = createTable("user", {
     .$type<number>()
     .notNull(),
   plan: PlanEnum("plan").notNull().default("Free"),
+});
+
+export const goalTable = createTable("goal", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("id")
+    .references(() => userTable.id)
+    .notNull(),
+  goalType: GoalTypeEnum("goal_type").default("Weight Maintenance").notNull(),
+  goalRate: GoalRateEnum("goal_rate").default("Moderate").notNull(),
+  startingWeight: decimal("starting_weight", {
+    precision: 10,
+    scale: 2,
+  })
+    .$type<number>()
+    .notNull(),
+  goalWeight: decimal("goal_weight", {
+    precision: 10,
+    scale: 2,
+  }).$type<number>(),
+  startDate: date("start_date", { mode: "date" }).notNull(),
+  status: GoalStatusEnum("status").notNull().default("InProgress"),
 });
 
 export const accountTable = createTable(
