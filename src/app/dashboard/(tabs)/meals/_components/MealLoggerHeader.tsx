@@ -74,6 +74,9 @@ const MealLoggerHeader = ({
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
+                  captionLayout="dropdown"
+                  fromDate={new Date("1990-01-01")}
+                  toDate={new Date()}
                   mode="single"
                   selected={selectedDay}
                   onSelect={(date) => {
