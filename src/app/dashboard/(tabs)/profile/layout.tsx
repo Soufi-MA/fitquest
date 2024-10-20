@@ -10,7 +10,7 @@ const ProfileLayout = async ({ children }: { children: ReactNode }) => {
   return (
     <div className="flex flex-col gap-4 px-8 py-4">
       <div className="flex w-full flex-col justify-center">
-        <Card className="flex w-full flex-col items-center gap-4 rounded-md bg-card/60 backdrop-blur-md px-8 py-4 shadow-md md:flex-row">
+        <Card className="flex w-full flex-col items-center gap-4 rounded-md bg-muted/60 backdrop-blur-md px-8 py-4 shadow-md md:flex-row">
           {user && (
             <>
               {user && user.profilePicture && (

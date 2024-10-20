@@ -210,7 +210,7 @@ const AccountDetailsForm = ({
   };
 
   return (
-    <Card className="w-full mx-auto bg-card/60 backdrop-blur-md">
+    <Card className="w-full mx-auto bg-muted/60 backdrop-blur-md">
       <CardHeader>
         <CardTitle className="text-xl">Account Details</CardTitle>
         <CardDescription>Manage your FitQuest account</CardDescription>
