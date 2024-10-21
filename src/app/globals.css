@@ -71,3 +71,9 @@
 .rdp-vhidden {
   @apply hidden;
 }
+
+.recharts-responsive-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
