@@ -1,5 +1,5 @@
 import React, { cache, useCallback, useEffect, useState } from "react";
-import { fetchFood, fetchFoods } from "../actions";
+import { fetchFood, fetchFoods } from "../../actions";
 import { DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
@@ -100,11 +100,19 @@ const AddFoodToMeal = ({ formData, setFormData, setStep }: StepsProps) => {
           </li>
         ))}
       </ul>
-      <DialogFooter className="flex gap-2">
-        <Button type="button" onClick={() => setStep(1)}>
+      <DialogFooter className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
+        <Button
+          className="md:col-start-3"
+          type="button"
+          onClick={() => setStep(1)}
+        >
           Back
         </Button>
-        <Button type="button" onClick={() => setStep(3)}>
+        <Button
+          className="md:col-start-4"
+          type="button"
+          onClick={() => setStep(3)}
+        >
           View Summary ({formData.foodEntries.length})
         </Button>
       </DialogFooter>
