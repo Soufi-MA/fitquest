@@ -1,8 +1,7 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
-import { fetchFood } from "./actions";
+import { fetchFood } from "../actions";
 import SelectMealType from "./AddMealElements/SelectMealType";
 import AddFoodToMeal from "./AddMealElements/AddFoodToMeal";
 import MealSummary from "./AddMealElements/MealSummary";
@@ -14,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 type FormData = {
+  id?: string;
   mealType: string;
   foodEntries: {
     foodData: FoodResult;
