@@ -32,6 +32,7 @@ export const nutrientTable = createTable("nutrient", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
   unitName: text("unit_name").notNull(),
+  rank: integer("rank").$type<number>().notNull(),
 });
 
 export const foodTable = createTable(
