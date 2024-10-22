@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import MealLoggerHeader from "./MealLoggerHeader";
 import MealLoggerSummary from "./MealLoggerSummary";
 import MealLoggerDetails from "./MealLoggerDetails";
-import { fetchMealDetails } from "./actions";
+import { fetchMealDetails } from "../actions";
 
 const MealLogger = () => {
   const [selectedDay, _setSelectedDay] = useState<Date>(
@@ -42,7 +42,12 @@ const MealLogger = () => {
       <Separator />
       <div className="grid grid-cols-1 lg:grid-cols-2 w-full flex-col lg:flex-row sm:h-[412px] overflow-hidden">
         <MealLoggerSummary mealDetails={mealDetails} />
-        <MealLoggerDetails loading={loading} mealDetails={mealDetails} />
+        <MealLoggerDetails
+          loading={loading}
+          mealDetails={mealDetails}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+        />
       </div>
     </div>
   );
