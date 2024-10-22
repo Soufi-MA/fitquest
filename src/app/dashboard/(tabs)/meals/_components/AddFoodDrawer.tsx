@@ -11,12 +11,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchFood } from "./actions";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+import { fetchFood } from "../actions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import NutrientsProportionsChart from "./AddMealElements/NutrientsProportionsChart";
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
 type FormData = {
+  id?: string;
   mealType: string;
   foodEntries: {
     foodData: FoodResult;
@@ -72,31 +81,35 @@ const AddFoodDrawer = ({
   };
 
   return (
-    <>
-      <div className="flex justify-between items-center px-4">
-        <div className="flex flex-col gap-2">
-          <h2 className="text-xl">Nutrient</h2>
-          {nutrients
-            .filter((nutrient) =>
-              [
-                "Protein",
-                "Total lipid (fat)",
-                "Carbohydrate, by difference",
-                "Energy",
-              ].includes(nutrient.name)
-            )
-            .map((nutrient) => (
-              <p key={nutrient.name}>
-                {nutrient.name}:{" "}
-                {(nutrient.amount * ((quantity * servingSize) / 100)).toFixed(
-                  2
-                )}{" "}
-                {nutrient.unit}
-              </p>
-            ))}
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col-reverse md:flex-row justify-between items-center gap-4 px-4">
+        <div className="flex flex-col gap-2 w-full min-w-0">
+          <NutrientsProportionsChart
+            calories={
+              (nutrients.find((nutrient) => nutrient.name.startsWith("Energy"))
+                ?.amount ?? 0) *
+              ((quantity * servingSize) / 100)
+            }
+            carbs={
+              (nutrients.find((nutrient) =>
+                nutrient.name.startsWith("Carbohydrate")
+              )?.amount ?? 0) *
+              ((quantity * servingSize) / 100)
+            }
+            fats={
+              (nutrients.find(
+                (nutrient) => nutrient.name === "Total lipid (fat)"
+              )?.amount ?? 0) *
+              ((quantity * servingSize) / 100)
+            }
+            protein={
+              (nutrients.find((nutrient) => nutrient.name.startsWith("Protein"))
+                ?.amount ?? 0) *
+              ((quantity * servingSize) / 100)
+            }
+          />
         </div>
-        <div className="flex flex-col gap-2">
-          <h2 className="text-xl">Portions</h2>
+        <div className="flex flex-col gap-2 w-full">
           <div className="flex gap-2">
             <Input
               placeholder="Quantity"
@@ -128,10 +141,35 @@ const AddFoodDrawer = ({
           </div>
         </div>
       </div>
+      <Accordion type="single" collapsible>
+        <AccordionItem value="item-1">
+          <AccordionTrigger>View All Nutrients</AccordionTrigger>
+          <AccordionContent className="max-h-[200px] overflow-y-scroll">
+            <div className="h-[300px]">
+              <ul className="space-y-2">
+                {nutrients
+                  .sort((a, b) => a.rank - b.rank)
+                  .map((nutrient, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center bg-secondary rounded-md p-2 text-sm"
+                    >
+                      <div className="font-semibold">{nutrient.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {(nutrient.amount * (quantity * servingSize)) / 100}{" "}
+                        {nutrient.unit}
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
       <DrawerFooter>
         <Button onClick={() => handleAddFood()}>Add Food</Button>
       </DrawerFooter>
-    </>
+    </div>
   );
 };
 
