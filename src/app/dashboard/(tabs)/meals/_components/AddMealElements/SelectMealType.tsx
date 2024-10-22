@@ -1,12 +1,7 @@
 import { Button } from "@/components/ui/button";
-import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import React, { useEffect, useState } from "react";
-import { fetchFood } from "../actions";
+import { DialogFooter } from "@/components/ui/dialog";
+import React from "react";
+import { fetchFood } from "../../actions";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Apple, Coffee, Donut, Soup } from "lucide-react";
@@ -75,8 +70,9 @@ const SelectMealType = ({ formData, setFormData, setStep }: StepsProps) => {
           className="col-span-3"
         />
       </div>
-      <DialogFooter className="flex gap-2">
+      <DialogFooter className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
         <Button
+          className="col-start-2 md:col-start-4"
           disabled={!formData.mealType || formData.mealType.length < 3}
           type="submit"
           onClick={() => setStep(2)}
