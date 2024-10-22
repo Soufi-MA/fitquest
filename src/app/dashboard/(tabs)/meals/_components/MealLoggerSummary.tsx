@@ -2,7 +2,7 @@
 import React from "react";
 import { RadialProgressChart } from "@/components/charts/RadialProgressChart";
 import { Progress } from "@/components/ui/progress";
-import { fetchMealDetails } from "./actions";
+import { fetchMealDetails } from "../actions";
 
 type MealDetailsResult = Awaited<ReturnType<typeof fetchMealDetails>>;
 const MealLoggerSummary = ({
@@ -12,19 +12,19 @@ const MealLoggerSummary = ({
 }) => {
   const totalCalories =
     mealDetails?.reduce((acc, curr) => {
-      return acc + Number(curr.totalCalories);
+      return acc + Number(curr.meal.totalCalories);
     }, 0) ?? 0;
   const totalFats =
     mealDetails?.reduce((acc, curr) => {
-      return acc + Number(curr.totalFats);
+      return acc + Number(curr.meal.totalFats);
     }, 0) ?? 0;
   const totalProtein =
     mealDetails?.reduce((acc, curr) => {
-      return acc + Number(curr.totalProtein);
+      return acc + Number(curr.meal.totalProtein);
     }, 0) ?? 0;
   const totalCarbs =
     mealDetails?.reduce((acc, curr) => {
-      return acc + Number(curr.totalCarbs);
+      return acc + Number(curr.meal.totalCarbs);
     }, 0) ?? 0;
 
   return (
@@ -51,7 +51,7 @@ const MealLoggerSummary = ({
               (totalProtein / 60) * 100 > 100 ? 100 : (totalProtein / 60) * 100
             }
           />
-          <p>{totalProtein}/60g</p>
+          <p>{totalProtein.toFixed(2)}/60g</p>
         </div>
         <div className="flex flex-col gap-1 w-full">
           <h2>Carbs</h2>
@@ -61,7 +61,7 @@ const MealLoggerSummary = ({
               (totalCarbs / 60) * 100 > 100 ? 100 : (totalCarbs / 60) * 100
             }
           />
-          <p>{totalCarbs}/60g</p>
+          <p>{totalCarbs.toFixed(2)}/60g</p>
         </div>
         <div className="flex flex-col gap-1 w-full">
           <h2>Fats</h2>
@@ -69,7 +69,7 @@ const MealLoggerSummary = ({
             color="bg-red-500"
             value={(totalFats / 60) * 100 > 100 ? 100 : (totalFats / 60) * 100}
           />
-          <p>{totalFats}/20g</p>
+          <p>{totalFats.toFixed(2)}/20g</p>
         </div>
       </div>
     </div>
