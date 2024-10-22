@@ -25,7 +25,6 @@ import NutrientsProportionsChart from "./AddMealElements/NutrientsProportionsCha
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
 type FormData = {
-  id?: string;
   mealType: string;
   foodEntries: {
     foodData: FoodResult;
