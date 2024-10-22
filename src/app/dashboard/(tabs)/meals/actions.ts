@@ -82,7 +82,6 @@ export const fetchFood = async (id: number) => {
 };
 
 const LogMealSchema = z.object({
-  id: z.string().nullish(),
   mealType: z.string(),
   foods: z
     .object({
@@ -168,53 +167,27 @@ export const logMeal = async (data: LogMealInput) => {
     const totals = calculateTotalNutrients(data);
 
     await db.transaction(async (tx) => {
-      if (!data.id) {
-        const [inserted] = await db
-          .insert(mealTable)
-          .values({
-            userId: user.id,
-            mealType: data.mealType,
-            mealTime: data.mealTime,
-            totalCalories: totals.totalCalories,
-            totalCarbs: totals.totalCarb,
-            totalFats: totals.totalFats,
-            totalProtein: totals.totalProtein,
-          })
-          .returning({ mealId: mealTable.id });
-        await db.insert(mealFoodTable).values(
-          data.foods.map((food) => ({
-            foodId: food.foodData.food.foodId,
-            mealId: inserted.mealId,
-            servingSize: food.servingSize,
-            quantity: food.quantity,
-            portionId: food.foodPortionId,
-          }))
-        );
-      } else {
-        const [updated] = await db
-          .update(mealTable)
-          .set({
-            userId: user.id,
-            mealType: data.mealType,
-            mealTime: data.mealTime,
-            totalCalories: totals.totalCalories,
-            totalCarbs: totals.totalCarb,
-            totalFats: totals.totalFats,
-            totalProtein: totals.totalProtein,
-          })
-          .where(eq(mealTable.id, data.id))
-          .returning({ mealId: mealTable.id });
-        await db.delete(mealFoodTable).where(eq(mealFoodTable.mealId, data.id));
-        await db.insert(mealFoodTable).values(
-          data.foods.map((food) => ({
-            foodId: food.foodData.food.foodId,
-            mealId: updated.mealId,
-            servingSize: food.servingSize,
-            quantity: food.quantity,
-            portionId: food.foodPortionId,
-          }))
-        );
-      }
+      const [inserted] = await db
+        .insert(mealTable)
+        .values({
+          userId: user.id,
+          mealType: data.mealType,
+          mealTime: data.mealTime,
+          totalCalories: totals.totalCalories,
+          totalCarbs: totals.totalCarb,
+          totalFats: totals.totalFats,
+          totalProtein: totals.totalProtein,
+        })
+        .returning({ mealId: mealTable.id });
+      await db.insert(mealFoodTable).values(
+        data.foods.map((food) => ({
+          foodId: food.foodData.food.foodId,
+          mealId: inserted.mealId,
+          servingSize: food.servingSize,
+          quantity: food.quantity,
+          portionId: food.foodPortionId,
+        }))
+      );
     });
   } catch (error) {
     console.log(error);
