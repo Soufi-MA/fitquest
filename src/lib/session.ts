@@ -7,13 +7,14 @@ import { cache } from "react";
 import { generateId, User } from "lucia";
 
 export const getCurrentUser = cache(async () => {
-  const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+  const nextCookies = await cookies();
+  const sessionId = nextCookies.get(lucia.sessionCookieName)?.value ?? null;
   if (!sessionId) return null;
   const { user, session } = await lucia.validateSession(sessionId);
   try {
     if (session && session.fresh) {
       const sessionCookie = lucia.createSessionCookie(session.id);
-      cookies().set(
+      nextCookies.set(
         sessionCookie.name,
         sessionCookie.value,
         sessionCookie.attributes
@@ -21,7 +22,7 @@ export const getCurrentUser = cache(async () => {
     }
     if (!session) {
       const sessionCookie = lucia.createBlankSessionCookie();
-      cookies().set(
+      nextCookies.set(
         sessionCookie.name,
         sessionCookie.value,
         sessionCookie.attributes
@@ -34,26 +35,30 @@ export const getCurrentUser = cache(async () => {
 });
 
 export async function setSession(id: User["id"]) {
+  const nextCookies = await cookies();
+
   const session = await lucia.createSession(id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
-  cookies().set(
+  nextCookies.set(
     sessionCookie.name,
     sessionCookie.value,
     sessionCookie.attributes
   );
-  cookies().delete("name");
-  cookies().delete("guestSessionId");
+  nextCookies.delete("name");
+  nextCookies.delete("guestSessionId");
 }
 
 export async function logout() {
   "use server";
+  const nextCookies = await cookies();
+
   const { session } = await validateRequest();
   if (!session) return;
 
   await lucia.invalidateSession(session.id);
 
   const sessionCookie = lucia.createBlankSessionCookie();
-  cookies().set(
+  nextCookies.set(
     sessionCookie.name,
     sessionCookie.value,
     sessionCookie.attributes
