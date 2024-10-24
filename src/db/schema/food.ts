@@ -55,11 +55,11 @@ export const foodNutrientTable = createTable(
   {
     foodId: integer("food_id")
       .notNull()
-      .references(() => foodTable.id),
+      .references(() => foodTable.id, { onDelete: "cascade" }),
     nutrientId: integer("nutrient_id")
       .notNull()
-      .references(() => nutrientTable.id),
-    amount: decimal("amount", { precision: 12, scale: 2 })
+      .references(() => nutrientTable.id, { onDelete: "cascade" }),
+    amount: decimal("amount", { precision: 10, scale: 2 })
       .$type<number>()
       .notNull(),
   },
