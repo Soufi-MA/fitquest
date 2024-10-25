@@ -59,7 +59,7 @@ export const foodNutrientTable = createTable(
     nutrientId: integer("nutrient_id")
       .notNull()
       .references(() => nutrientTable.id, { onDelete: "cascade" }),
-    amount: decimal("amount", { precision: 10, scale: 2 })
+    amount: decimal("amount", { precision: 7, scale: 2 })
       .$type<number>()
       .notNull(),
   },
