@@ -46,13 +46,14 @@ const UserNav = async () => {
             <div className="h-[400px]"></div>
           </ScrollArea>
           <Separator />
-
-          <Link
-            href={"/dashboard/notifications"}
-            className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md p-4 hover:bg-muted"
-          >
-            View all notifications
-          </Link>
+          <PopoverClose asChild>
+            <Link
+              href={"/dashboard/profile/notifications"}
+              className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md p-4 hover:bg-muted"
+            >
+              View all notifications
+            </Link>
+          </PopoverClose>
         </PopoverContent>
       </Popover>
       <Popover>
