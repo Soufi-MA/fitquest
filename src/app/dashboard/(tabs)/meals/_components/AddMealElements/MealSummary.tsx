@@ -98,7 +98,10 @@ const MealSummary = ({
           };
 
           return (
-            <div className="flex flex-col justify-between items-center py-2 border-b">
+            <div
+              key={i}
+              className="flex flex-col justify-between items-center py-2 border-b"
+            >
               <div className="flex justify-between w-full px-2">
                 <h2 className="text-xl">{food.description}</h2>
                 <Trash
