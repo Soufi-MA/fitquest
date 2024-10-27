@@ -49,7 +49,7 @@ export function RadialProgressChart({
                       y={(viewBox.cy || 0) - 16}
                       className="fill-foreground text-2xl sm:text-4xl font-bold"
                     >
-                      {data[0].value.toString()}
+                      {data[0].value.toFixed(0)}
                     </tspan>
                     <tspan
                       x={viewBox.cx}
