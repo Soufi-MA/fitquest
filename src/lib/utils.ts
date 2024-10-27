@@ -16,6 +16,20 @@ export function getStartOfWeek(today: Date) {
   return startDate;
 }
 
+export const getDateFromSearchParams = (
+  dateString: string | undefined | null
+): Date => {
+  const date =
+    dateString && !isNaN(Date.parse(dateString))
+      ? new Date(dateString)
+      : new Date();
+
+  date.setHours(6, 0, 0, 0);
+  const minDate = new Date(1900, 0, 1, 6, 0, 0, 0);
+
+  return date < minDate ? new Date() : date;
+};
+
 export function timestampMixin() {
   return {
     createdAt: timestamp("created_at", {
