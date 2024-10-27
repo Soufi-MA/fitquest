@@ -116,7 +116,7 @@ export const mealFoodTable = createTable("meal_food", {
   id: uuid("id").defaultRandom().primaryKey(),
   mealId: uuid("meal_id")
     .notNull()
-    .references((): AnyPgColumn => mealTable.id),
+    .references((): AnyPgColumn => mealTable.id, { onDelete: "cascade" }),
   foodId: integer("food_id")
     .notNull()
     .references(() => foodTable.id),
