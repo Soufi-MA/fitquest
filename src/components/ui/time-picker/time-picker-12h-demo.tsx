@@ -7,10 +7,10 @@ import { Period } from "./time-picker-utils";
 
 interface TimePickerDemoProps {
   date: Date | undefined;
-  setDate: (date: Date | undefined) => void;
+  setDateAction: (date: Date | undefined) => void;
 }
 
-export function TimePicker12Demo({ date, setDate }: TimePickerDemoProps) {
+export function TimePicker12Demo({ date, setDateAction }: TimePickerDemoProps) {
   const [period, setPeriod] = React.useState<Period>("PM");
 
   const minuteRef = React.useRef<HTMLInputElement>(null);
@@ -25,7 +25,7 @@ export function TimePicker12Demo({ date, setDate }: TimePickerDemoProps) {
           picker="12hours"
           period={period}
           date={date}
-          setDate={setDate}
+          setDate={setDateAction}
           ref={hourRef}
           onRightFocus={() => minuteRef.current?.focus()}
         />
@@ -37,7 +37,7 @@ export function TimePicker12Demo({ date, setDate }: TimePickerDemoProps) {
           picker="minutes"
           id="minutes12"
           date={date}
-          setDate={setDate}
+          setDate={setDateAction}
           ref={minuteRef}
           onLeftFocus={() => hourRef.current?.focus()}
           onRightFocus={() => periodRef.current?.focus()}
@@ -49,7 +49,7 @@ export function TimePicker12Demo({ date, setDate }: TimePickerDemoProps) {
           period={period}
           setPeriod={setPeriod}
           date={date}
-          setDate={setDate}
+          setDate={setDateAction}
           ref={periodRef}
           onLeftFocus={() => hourRef.current?.focus()}
         />
