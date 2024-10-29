@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { fetchFood } from "../actions";
 import SelectMealType from "./AddMealElements/SelectMealType";
 import AddFoodToMeal from "./AddMealElements/AddFoodToMeal";
@@ -11,6 +11,8 @@ import {
   DialogDrawerTrigger,
 } from "@/components/ui/dialog-drawer";
 import { Button } from "@/components/ui/button";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getDateFromSearchParams } from "@/lib/utils";
 
 type FormData = {
   id?: string;
@@ -26,23 +28,36 @@ type FormData = {
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
 
-const AddMeal = ({
-  selectedDay,
-  setSelectedDay,
-}: {
-  selectedDay: Date;
-  setSelectedDay: (date: Date) => void;
-}) => {
+const AddMeal = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const dateString = searchParams.get("date");
+  const today = getDateFromSearchParams(dateString);
+
   const initialForm: FormData = {
     mealType: "",
     foodEntries: [],
-    date: selectedDay,
+    date: today,
   };
 
   const [step, setStep] = useState(1);
   const [open, setOpen] = useState(false);
 
   const [formData, setFormData] = useState<FormData>(initialForm);
+  const [isPending, startTransition] = useTransition();
+  const [optimisticDate, setOptimisticDate] = useOptimistic(today);
+
+  const handleDateParams = (date: Date) => {
+    const params = new URLSearchParams(searchParams);
+    const dateString = date.toDateString();
+    params.set("date", dateString);
+    startTransition(() => {
+      setOptimisticDate(date);
+      router.push(`?${params.toString()}`, {
+        scroll: false,
+      });
+    });
+  };
 
   const render = () => {
     switch (step) {
@@ -69,7 +84,7 @@ const AddMeal = ({
             setFormData={setFormData}
             setStep={setStep}
             setOpen={setOpen}
-            setSelectedDay={setSelectedDay}
+            handleDateParams={handleDateParams}
           />
         );
       default:
