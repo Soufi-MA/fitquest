@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchFood, logMeal } from "../../actions";
-import { CalendarIcon, Clock, Trash } from "lucide-react";
+import { CalendarIcon, Clock, Loader2, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -24,6 +24,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import NutrientsProportionsChart from "./NutrientsProportionsChart";
 import { TimePicker12Demo } from "@/components/ui/time-picker/time-picker-12h-demo";
+import { useState } from "react";
 
 type StepsProps = {
   formData: FormData;
@@ -50,8 +51,12 @@ const MealSummary = ({
   setFormData,
   setStep,
   setOpen,
-  setSelectedDay,
-}: StepsProps & { setSelectedDay: (date: Date) => void }) => {
+  handleDateParams,
+}: StepsProps & {
+  handleDateParams: (date: Date) => void;
+}) => {
+  const [isAdding, setIsAdding] = useState(false);
+
   return (
     <div className="flex flex-col w-full h-full justify-start gap-4">
       <DialogTitle>Summary</DialogTitle>
@@ -238,7 +243,7 @@ const MealSummary = ({
         </Popover>
         <TimePicker12Demo
           date={formData.date}
-          setDate={(date) => {
+          setDateAction={(date) => {
             if (date) {
               setFormData({ ...formData, date });
             }
@@ -250,6 +255,7 @@ const MealSummary = ({
         <Button
           type="button"
           onClick={async () => {
+            setIsAdding(true);
             const result = await logMeal({
               foods: formData.foodEntries.map((foodEntry) => {
                 const foodData = foodEntry.foodData;
@@ -267,12 +273,13 @@ const MealSummary = ({
               mealTime: formData.date,
             });
             if (result.success) {
-              setSelectedDay(formData.date);
+              handleDateParams(formData.date);
               setOpen(false);
             }
+            setIsAdding(true);
           }}
         >
-          Save
+          {isAdding ? <Loader2 className="animate-spin" /> : "Save"}
         </Button>
       </DialogFooter>
     </div>
