@@ -1,6 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, {
+  ReactNode,
+  useOptimistic,
+  useState,
+  useTransition,
+} from "react";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,14 +15,10 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { cn, getStartOfWeek } from "@/lib/utils";
+import { cn, getDateFromSearchParams, getStartOfWeek } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import AddMeal from "./AddMeal";
-
-interface MealLoggerHeaderProps {
-  selectedDay: Date;
-  setSelectedDay: (date: Date) => void;
-}
+import { useRouter, useSearchParams } from "next/navigation";
 
 const weekMap: Record<string, string> = {
   "0": "Sun",
@@ -29,24 +30,40 @@ const weekMap: Record<string, string> = {
   "6": "Sat",
 };
 
-const MealLoggerHeader = ({
-  selectedDay,
-  setSelectedDay,
-}: MealLoggerHeaderProps) => {
-  const [weekStart, setWeekStart] = useState<Date>(getStartOfWeek(new Date()));
+const MealLoggerHeader = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const date = searchParams.get("date");
+  const today = getDateFromSearchParams(date);
+
+  const [weekStart, setWeekStart] = useState<Date>(getStartOfWeek(today));
+  const [isPending, startTransition] = useTransition();
+  const [optimisticDate, setOptimisticDate] = useOptimistic(today);
+
+  const handleDateParams = (date: Date) => {
+    const params = new URLSearchParams(searchParams);
+    const dateString = date.toDateString();
+    params.set("date", dateString);
+    startTransition(() => {
+      setOptimisticDate(date);
+      router.push(`?${params.toString()}`, {
+        scroll: false,
+      });
+    });
+  };
 
   return (
-    <>
+    <div className="peer" data-pending={isPending ? "true" : undefined}>
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex flex-col">
           <p className="text-lg font-semibold md:text-2xl">Meal Logger</p>
         </div>
         <div className="flex flex-col sm:flex-row items-end sm:items-center justify-center gap-2">
-          <AddMeal selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
+          <AddMeal />
           <div className="flex gap-1 items-center justify-between">
             <Button
               onClick={() => {
-                const newDate = new Date(weekStart);
+                const newDate = new Date(optimisticDate);
                 newDate.setDate(newDate.getDate() - 7);
                 setWeekStart(newDate);
               }}
@@ -61,11 +78,11 @@ const MealLoggerHeader = ({
                   variant={"outline"}
                   className={cn(
                     "w-[140px] pl-3 text-left font-normal",
-                    !selectedDay && "text-muted-foreground"
+                    !optimisticDate && "text-muted-foreground"
                   )}
                 >
-                  {selectedDay ? (
-                    format(selectedDay, "PP")
+                  {optimisticDate ? (
+                    format(optimisticDate, "PP")
                   ) : (
                     <span>Pick a date</span>
                   )}
@@ -78,12 +95,12 @@ const MealLoggerHeader = ({
                   fromDate={new Date("1990-01-01")}
                   toDate={new Date()}
                   mode="single"
-                  selected={selectedDay}
+                  selected={optimisticDate}
                   onSelect={(date) => {
                     if (date) {
                       const newDate = new Date(date);
                       setWeekStart(getStartOfWeek(newDate));
-                      setSelectedDay(date);
+                      handleDateParams(date);
                     }
                   }}
                   disabled={(date: Date) => date < new Date("1900-01-01")}
@@ -114,12 +131,12 @@ const MealLoggerHeader = ({
             return (
               <div
                 key={i}
-                onClick={() => setSelectedDay(thisDay)}
+                onClick={() => handleDateParams(thisDay)}
                 className={cn(
                   "col-span-1 flex h-full cursor-pointer flex-col items-center justify-center rounded-md bg-muted py-2",
                   {
                     "bg-primary":
-                      selectedDay?.toDateString() === thisDay.toDateString(),
+                      optimisticDate.toDateString() === thisDay.toDateString(),
                   }
                 )}
               >
@@ -132,7 +149,7 @@ const MealLoggerHeader = ({
           })}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
