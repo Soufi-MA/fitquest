@@ -1,15 +1,16 @@
-"use client";
-import React from "react";
+import React, { cache } from "react";
 import { RadialProgressChart } from "@/components/charts/RadialProgressChart";
 import { Progress } from "@/components/ui/progress";
 import { fetchMealDetails } from "../actions";
+import { getDateFromSearchParams } from "@/lib/utils";
 
-type MealDetailsResult = Awaited<ReturnType<typeof fetchMealDetails>>;
-const MealLoggerSummary = ({
-  mealDetails,
+const MealLoggerSummary = async ({
+  mealDetailsPromise,
 }: {
-  mealDetails: MealDetailsResult;
+  mealDetailsPromise: ReturnType<typeof fetchMealDetails>;
 }) => {
+  const mealDetails = await mealDetailsPromise;
+
   const totalCalories =
     mealDetails?.reduce((acc, curr) => {
       return acc + Number(curr.meal.totalCalories);
