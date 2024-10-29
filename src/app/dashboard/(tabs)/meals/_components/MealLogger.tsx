@@ -1,53 +1,24 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
+import React, { cache } from "react";
 import { Separator } from "@/components/ui/separator";
 
 import MealLoggerHeader from "./MealLoggerHeader";
 import MealLoggerSummary from "./MealLoggerSummary";
 import MealLoggerDetails from "./MealLoggerDetails";
+import { getDateFromSearchParams } from "@/lib/utils";
 import { fetchMealDetails } from "../actions";
 
-const MealLogger = () => {
-  const [selectedDay, _setSelectedDay] = useState<Date>(
-    new Date(new Date().setHours(6, 0, 0, 0))
-  );
-
-  const setSelectedDay = (date: Date) => {
-    const updatedDate = new Date(date);
-    updatedDate.setHours(6, 0, 0, 0);
-    _setSelectedDay(updatedDate);
-  };
-  type MealDetailsResult = Awaited<ReturnType<typeof fetchMealDetails>>;
-
-  const [mealDetails, setMealDetails] = useState<MealDetailsResult>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetch = async (selectedDay: Date) => {
-      setLoading(true);
-      const details = await fetchMealDetails(selectedDay);
-      setMealDetails(details);
-      setLoading(false);
-    };
-    fetch(selectedDay);
-  }, [selectedDay]);
+const MealLogger = async ({ date }: { date: string | undefined }) => {
+  const today = getDateFromSearchParams(date);
+  const getChchedMealDetails = cache(fetchMealDetails);
+  const mealDetailsPromise = getChchedMealDetails(today);
 
   return (
     <div className="col-span-full flex flex-col rounded-md bg-muted/60 backdrop-blur-md border">
-      <MealLoggerHeader
-        selectedDay={selectedDay}
-        setSelectedDay={setSelectedDay}
-      />
+      <MealLoggerHeader />
       <Separator />
-      <div className="grid grid-cols-1 lg:grid-cols-2 w-full flex-col lg:flex-row sm:h-[412px] overflow-hidden">
-        <MealLoggerSummary mealDetails={mealDetails} />
-        <MealLoggerDetails
-          loading={loading}
-          mealDetails={mealDetails}
-          selectedDay={selectedDay}
-          setSelectedDay={setSelectedDay}
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-2 w-full flex-col lg:flex-row sm:h-[412px] overflow-hidden peer-data-[pending=true]:animate-pulse">
+        <MealLoggerSummary mealDetailsPromise={mealDetailsPromise} />
+        <MealLoggerDetails mealDetailsPromise={mealDetailsPromise} />
       </div>
     </div>
   );
