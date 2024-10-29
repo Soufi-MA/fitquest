@@ -11,6 +11,7 @@ import {
 } from "@/db/schema/food";
 import { getCurrentUser } from "@/lib/session";
 import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export const fetchFoods = async (query: string) => {
@@ -192,6 +193,8 @@ export const logMeal = async (data: LogMealInput) => {
   } catch (error) {
     console.log(error);
   }
+
+  revalidatePath("/dashboard/meals");
 
   return { success: true };
 };
