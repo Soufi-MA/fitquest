@@ -167,7 +167,7 @@ export const logMeal = async (data: LogMealInput) => {
     const totals = calculateTotalNutrients(data);
 
     await db.transaction(async (tx) => {
-      const [inserted] = await db
+      const [inserted] = await tx
         .insert(mealTable)
         .values({
           userId: user.id,
@@ -179,7 +179,7 @@ export const logMeal = async (data: LogMealInput) => {
           totalProtein: totals.totalProtein,
         })
         .returning({ mealId: mealTable.id });
-      await db.insert(mealFoodTable).values(
+      await tx.insert(mealFoodTable).values(
         data.foods.map((food) => ({
           foodId: food.foodData.food.foodId,
           mealId: inserted.mealId,
