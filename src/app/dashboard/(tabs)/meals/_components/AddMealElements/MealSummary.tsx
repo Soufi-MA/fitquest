@@ -254,6 +254,7 @@ const MealSummary = ({
         </Button>
         <Button
           type="button"
+          disabled={formData.foodEntries.length === 0}
           onClick={async () => {
             setIsAdding(true);
             const result = await logMeal({
