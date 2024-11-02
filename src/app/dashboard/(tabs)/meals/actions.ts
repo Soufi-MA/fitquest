@@ -224,9 +224,11 @@ export const fetchMealDetails = async (date: Date) => {
     mealDetails.map(async (meal) => {
       const mealFoods = await db
         .select({
+          id: mealFoodTable.id,
           foodId: mealFoodTable.foodId,
           quantity: mealFoodTable.quantity,
           servingSize: mealFoodTable.servingSize,
+          portionId: mealFoodTable.portionId,
         })
         .from(mealFoodTable)
         .where(eq(mealFoodTable.mealId, meal.id));
@@ -234,9 +236,11 @@ export const fetchMealDetails = async (date: Date) => {
         mealFoods.map(async (food) => {
           const foodDetails = await fetchFood(food.foodId);
           return {
+            id: food.id,
             foodDetails,
             quantity: food.quantity,
             servingSize: food.servingSize,
+            foodPortionId: food.portionId,
           };
         })
       );
@@ -270,6 +274,7 @@ export const fetchFoodEntries = async (mealId: string) => {
     mealFoods.map(async (food) => {
       const foodData = await fetchFood(food.foodId);
       return {
+        id: food.id,
         foodData,
         foodPortionId: food.portionId ?? undefined,
         quantity: food.quantity,
