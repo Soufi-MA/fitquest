@@ -1,8 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Clock, Ellipsis, Zap } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Ellipsis,
+  Loader2,
+  Trash2,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,16 +28,42 @@ import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { TimePicker12Demo } from "@/components/ui/time-picker/time-picker-12h-demo";
 import AddFoodToMeal from "./EditMealElements/AddFoodToMeal";
 import Form from "next/form";
-import { deleteMeal, editMealName } from "./EditMealElements/actions";
+import {
+  deleteFoodEntry,
+  deleteMeal,
+  editFoodEntry,
+  editMealName,
+  editMealTime,
+} from "./EditMealElements/actions";
 import { fetchMealDetails } from "../actions";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import NutrientsProportionsChart from "./AddMealElements/NutrientsProportionsChart";
 
 type MealDetail = NonNullable<
   Awaited<ReturnType<typeof fetchMealDetails>>
@@ -43,6 +77,14 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
     (typeof mealDetail.foods)[0] | null
   >(null);
   const [open, setOpen] = useState(false);
+  const [foodEntryOpen, setfoodEntryOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const [timeInput, setTimeInput] = useState<Date>(mealDetail.meal.mealTime);
+  const [servingSize, setServingSize] = useState<number>(100);
+  const [foodPortionId, setFoodPortionId] = useState<string | undefined>();
+  const [quantity, setQuantity] = useState(1);
+
   const total =
     Number(mealDetail.meal.totalCarbs) +
     Number(mealDetail.meal.totalFats) +
@@ -65,14 +107,30 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
               mealId={mealDetail.meal.id}
               mealDate={mealDetail.meal.mealTime}
               setOpen={setOpen}
+              setIsExpanded={setIsExpanded}
+              startTransition={startTransition}
             />
           </DialogContent>
         );
       case "edit-name":
+        const handleEditName = async (data: FormData) => {
+          startTransition(async () => {
+            const result = await editMealName(data);
+            if (result.success === true) {
+              setOpen(false);
+            }
+          });
+        };
+
         return (
           <DialogContent>
-            <DialogTitle>Edit Name</DialogTitle>
-            <Form action={editMealName}>
+            <DialogHeader>
+              <DialogTitle>Edit Meal</DialogTitle>
+              <DialogDescription>
+                Make changes to the meal name here. Click save when you're done.
+              </DialogDescription>
+            </DialogHeader>
+            <Form action={(e) => handleEditName(e)}>
               <input
                 value={mealDetail.meal.id}
                 name="id"
@@ -80,32 +138,132 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
                 readOnly
                 hidden
               />
-              <Input
-                name="name"
-                id="name"
-                defaultValue={mealDetail.meal.mealType}
-              />
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="meal-name" className="text-right">
+                    Meal Name
+                  </Label>
+                  <Input
+                    name="name"
+                    id="name"
+                    className="col-span-3"
+                    defaultValue={mealDetail.meal.mealType}
+                  />
+                </div>
+              </div>
               <DialogFooter>
-                <Button type="submit">Edit</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="animate-spin" />
+                      Saving...
+                    </span>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
               </DialogFooter>
             </Form>
           </DialogContent>
         );
       case "edit-time":
+        const handleEditTime = async (data: FormData) => {
+          startTransition(async () => {
+            const result = await editMealTime(data);
+            if (result.success === true) {
+              setOpen(false);
+            }
+          });
+        };
+
         return (
           <DialogContent>
-            <DialogTitle>Edit Time</DialogTitle>
-            <TimePicker12Demo
-              date={mealDetail.meal.mealTime}
-              setDateAction={(date) => {}}
-            />
+            <DialogHeader>
+              <DialogTitle>Edit Meal</DialogTitle>
+              <DialogDescription>
+                Make changes to the meal time here. Click save when you're done.
+              </DialogDescription>
+            </DialogHeader>
+            <Form action={(e) => handleEditTime(e)}>
+              <input
+                value={mealDetail.meal.id}
+                name="id"
+                id="id"
+                readOnly
+                hidden
+              />
+              <input
+                value={timeInput.toString()}
+                name="time"
+                id="time"
+                readOnly
+                hidden
+              />
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="meal-name" className="text-right">
+                    Meal Name
+                  </Label>
+                  <TimePicker12Demo
+                    date={timeInput}
+                    setDateAction={(date) => {
+                      if (date) {
+                        setTimeInput(date);
+                      }
+                    }}
+                    className="col-span-3 justify-center"
+                  />
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="animate-spin" />
+                      Saving...
+                    </span>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </DialogFooter>
+            </Form>
           </DialogContent>
         );
+
       case "delete-meal":
+        const handleDeleteMeal = async (data: FormData) => {
+          startTransition(async () => {
+            const result = await deleteMeal(data);
+            if (result.success === true) {
+              setOpen(false);
+            }
+          });
+        };
+
         return (
           <DialogContent>
             <DialogTitle>Delete {mealDetail.meal.mealType}</DialogTitle>
-            <Form action={deleteMeal}>
+            <DialogDescription>
+              Are you sure you want to delete this meal? This action cannot be
+              undone.
+            </DialogDescription>
+            <Form action={(e) => handleDeleteMeal(e)}>
               <input
                 value={mealDetail.meal.id}
                 id="id"
@@ -113,7 +271,24 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
                 hidden
                 readOnly
               />
-              <Button>Delete {mealDetail.meal.mealType}</Button>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  type="submit"
+                  disabled={isPending}
+                  className="flex gap-2"
+                >
+                  {isPending ? (
+                    <Loader2 className="animate-spin h-4 w-4" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                  Delete
+                </Button>
+              </DialogFooter>
             </Form>
           </DialogContent>
         );
@@ -131,18 +306,230 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
     switch (foodDialog) {
       case "edit-food":
         if (!food) return null;
+        const servingUnit =
+          food.foodDetails.food.type === "Branded"
+            ? food.foodDetails.portions[0].servingSizeUnit
+            : "g";
+
+        const handleSelect = (value: string) => {
+          if (value === "1" || value === "100") {
+            setServingSize(Number(value));
+            setFoodPortionId(undefined);
+          } else {
+            setFoodPortionId(value);
+            const portion = food.foodDetails.portions.find(
+              (portion) => portion.id === value
+            );
+            setServingSize(portion?.servingSize ?? 100);
+          }
+        };
+
+        const handleEditFoodEntry = async (data: FormData) => {
+          startTransition(async () => {
+            const result = await editFoodEntry(data);
+            if (result.success === true) {
+              setfoodEntryOpen(false);
+            }
+          });
+        };
         return (
           <DialogContent>
-            <DialogTitle>Edit {food.foodDetails.food.description}</DialogTitle>
+            <DialogHeader>
+              <DialogTitle>Edit Food Entry</DialogTitle>
+              <DialogDescription>
+                Make changes to the food entry here. Click save when you're
+                done.
+              </DialogDescription>
+            </DialogHeader>
+            <Form
+              action={(e) => handleEditFoodEntry(e)}
+              className="flex flex-col gap-4"
+            >
+              <input id="id" name="id" value={food.id} hidden readOnly />
+              <div className="flex flex-col justify-between items-center gap-4 px-4">
+                <div className="flex flex-col gap-2 w-full min-w-0">
+                  <NutrientsProportionsChart
+                    calories={
+                      (food.foodDetails.nutrients.find((nutrient) =>
+                        nutrient.name.startsWith("Energy")
+                      )?.amount ?? 0) *
+                      ((quantity * servingSize) / 100)
+                    }
+                    carbs={
+                      (food.foodDetails.nutrients.find((nutrient) =>
+                        nutrient.name.startsWith("Carbohydrate")
+                      )?.amount ?? 0) *
+                      ((quantity * servingSize) / 100)
+                    }
+                    fats={
+                      (food.foodDetails.nutrients.find(
+                        (nutrient) => nutrient.name === "Total lipid (fat)"
+                      )?.amount ?? 0) *
+                      ((quantity * servingSize) / 100)
+                    }
+                    protein={
+                      (food.foodDetails.nutrients.find((nutrient) =>
+                        nutrient.name.startsWith("Protein")
+                      )?.amount ?? 0) *
+                      ((quantity * servingSize) / 100)
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-2 w-full">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Quantity"
+                      id="quantity"
+                      name="quantity"
+                      defaultValue={quantity}
+                      onChange={(e) =>
+                        typeof Number(e.target.value) === "number"
+                          ? setQuantity(Number(e.target.value))
+                          : null
+                      }
+                    />
+                    <input
+                      id="portionId"
+                      name="portionId"
+                      value={foodPortionId ?? ""}
+                      hidden
+                      readOnly
+                    />
+                    <input
+                      id="servingSize"
+                      name="servingSize"
+                      value={servingSize}
+                      hidden
+                      readOnly
+                    />
+                    <Select
+                      defaultValue={
+                        ["100", "1"].includes(food.servingSize.toString())
+                          ? food.servingSize.toString()
+                          : food.foodPortionId
+                          ? food.foodPortionId
+                          : "100"
+                      }
+                      onValueChange={handleSelect}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a portion" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Portion</SelectLabel>
+                          <SelectItem value={"100"}>
+                            {"100 " + servingUnit}
+                          </SelectItem>
+                          <SelectItem value={"1"}>
+                            {"1 " + servingUnit}
+                          </SelectItem>
+                          {food.foodDetails.portions.map((portion) => (
+                            <SelectItem key={portion.id} value={portion.id}>
+                              {portion.householdServingFullText} (
+                              {portion.servingSize} {servingUnit})
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              <Accordion type="single" collapsible>
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>View All Nutrients</AccordionTrigger>
+                  <AccordionContent className="max-h-[200px] overflow-y-scroll">
+                    <div className="h-[300px]">
+                      <ul className="space-y-2">
+                        {food.foodDetails.nutrients
+                          .sort((a, b) => a.rank - b.rank)
+                          .map((nutrient, index) => (
+                            <li
+                              key={index}
+                              className="flex justify-between items-center bg-secondary rounded-md p-2 text-sm"
+                            >
+                              <div className="font-semibold">
+                                {nutrient.name}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {(
+                                  (nutrient.amount * (quantity * servingSize)) /
+                                  100
+                                ).toFixed(2)}{" "}
+                                {nutrient.unit}
+                              </div>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isPending}>
+                  {isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save changes"
+                  )}
+                </Button>
+              </DialogFooter>
+            </Form>
           </DialogContent>
         );
       case "delete-food":
         if (!food) return null;
+        const handleDeleteEntry = async (data: FormData) => {
+          startTransition(async () => {
+            const result = await deleteFoodEntry(data);
+            if (result.success === true) {
+              setfoodEntryOpen(false);
+            }
+          });
+        };
+
         return (
           <DialogContent>
             <DialogTitle>
               Delete {food.foodDetails.food.description}
             </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this food entry? This action
+              cannot be undone.
+            </DialogDescription>
+            <Form action={(e) => handleDeleteEntry(e)}>
+              <input value={food.id} id="id" name="id" hidden readOnly />
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  type="submit"
+                  disabled={isPending}
+                  className="flex gap-2"
+                >
+                  {isPending ? (
+                    <Loader2 className="animate-spin h-4 w-4" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                  Delete
+                </Button>
+              </DialogFooter>
+            </Form>
           </DialogContent>
         );
       default:
@@ -151,7 +538,11 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card
+      className={cn("w-full max-w-2xl mx-auto", {
+        "animate-pulse": isPending,
+      })}
+    >
       <CardHeader className="px-4 py-2">
         <CardTitle className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
@@ -357,7 +748,10 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
                         {parseFloat(Number(food.servingSize).toFixed(2))}g
                       </span>
                     </div>
-                    <Dialog>
+                    <Dialog
+                      open={foodEntryOpen}
+                      onOpenChange={setfoodEntryOpen}
+                    >
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -371,7 +765,15 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
                           <DialogTrigger asChild>
                             <DropdownMenuItem
                               onSelect={() => {
+                                setfoodEntryOpen(true);
                                 setDialogFood(food);
+                                setQuantity(
+                                  parseFloat(food.quantity.toString())
+                                );
+                                setServingSize(food.servingSize);
+                                setFoodPortionId(
+                                  food.foodPortionId ?? undefined
+                                );
                                 setFoodDialog("edit-food");
                               }}
                             >
@@ -381,6 +783,7 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
                           <DialogTrigger asChild>
                             <DropdownMenuItem
                               onSelect={() => {
+                                setfoodEntryOpen(true);
                                 setDialogFood(food);
                                 setFoodDialog("delete-food");
                               }}
