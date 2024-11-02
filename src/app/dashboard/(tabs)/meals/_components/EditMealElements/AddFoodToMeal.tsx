@@ -14,10 +14,14 @@ const AddFoodToMeal = ({
   mealId,
   mealDate,
   setOpen,
+  setIsExpanded,
+  startTransition,
 }: {
   mealId: string;
   mealDate: Date;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+  startTransition: React.TransitionStartFunction;
 }) => {
   const [foods, setFoods] = useState<FoodResults | undefined>();
   const [selectedFoodData, setSelectedFoodData] = useState<FoodResult | null>(
@@ -119,6 +123,8 @@ const AddFoodToMeal = ({
               mealId={mealId}
               mealDate={mealDate}
               setOpen={setOpen}
+              setIsExpanded={setIsExpanded}
+              startTransition={startTransition}
             />
           )}
         </DrawerContent>

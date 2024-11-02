@@ -25,6 +25,7 @@ import NutrientsProportionsChart from "../AddMealElements/NutrientsProportionsCh
 import { addFoodToMeal } from "./actions";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDateFromSearchParams } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
 type FormData = {
@@ -45,18 +46,21 @@ const AddFoodDrawer = ({
   mealId,
   mealDate,
   setOpen,
+  setIsExpanded,
+  startTransition,
 }: {
   foodData: FoodResult;
   mealId: string;
   mealDate: Date;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+  startTransition: React.TransitionStartFunction;
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const date = searchParams.get("date");
   const today = getDateFromSearchParams(date);
-  const [isPending, startTransition] = useTransition();
   const [optimisticDate, setOptimisticDate] = useOptimistic(today);
 
   const [servingSize, setServingSize] = useState<number>(100);
@@ -95,6 +99,7 @@ const AddFoodDrawer = ({
     if (result.success) {
       handleDateParams(mealDate);
       setOpen(false);
+      setIsExpanded(true);
     }
 
     setOpen(false);
@@ -199,7 +204,16 @@ const AddFoodDrawer = ({
         </AccordionItem>
       </Accordion>
       <DrawerFooter>
-        <Button onClick={() => handleAddFood()}>Add Food</Button>
+        <Button onClick={() => handleAddFood()}>
+          {adding ? (
+            <span className="flex gap-2 items-center">
+              <Loader2 className="animate-spin" />
+              Adding...
+            </span>
+          ) : (
+            "Add Food"
+          )}
+        </Button>
       </DrawerFooter>
     </div>
   );
