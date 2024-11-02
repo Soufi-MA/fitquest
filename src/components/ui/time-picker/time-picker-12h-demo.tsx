@@ -4,13 +4,19 @@ import * as React from "react";
 import { TimePickerInput } from "./time-picker-input";
 import { TimePeriodSelect } from "./period-select";
 import { Period } from "./time-picker-utils";
+import { cn } from "@/lib/utils";
 
 interface TimePickerDemoProps {
   date: Date | undefined;
   setDateAction: (date: Date | undefined) => void;
+  className?: string;
 }
 
-export function TimePicker12Demo({ date, setDateAction }: TimePickerDemoProps) {
+export function TimePicker12Demo({
+  date,
+  setDateAction,
+  className,
+}: TimePickerDemoProps) {
   const [period, setPeriod] = React.useState<Period>("AM");
 
   const minuteRef = React.useRef<HTMLInputElement>(null);
@@ -18,7 +24,7 @@ export function TimePicker12Demo({ date, setDateAction }: TimePickerDemoProps) {
   const periodRef = React.useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="flex items-center gap-1 border rounded-md">
+    <div className={cn("flex items-center gap-1 border rounded-md", className)}>
       <div className="grid gap-1 text-center">
         <TimePickerInput
           className="border-0"
