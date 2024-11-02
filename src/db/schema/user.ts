@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   timestamp,
   text,
@@ -7,6 +8,7 @@ import {
   decimal,
   pgEnum,
   primaryKey,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const GenderEnum = pgEnum("gender", ["Male", "Female"]);
@@ -53,26 +55,34 @@ export const userTable = createTable("user", {
   plan: PlanEnum("plan").notNull().default("Free"),
 });
 
-export const goalTable = createTable("goal", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("id")
-    .references(() => userTable.id)
-    .notNull(),
-  goalType: GoalTypeEnum("goal_type").default("Weight Maintenance").notNull(),
-  goalRate: GoalRateEnum("goal_rate").default("Moderate").notNull(),
-  startingWeight: decimal("starting_weight", {
-    precision: 10,
-    scale: 2,
+export const goalTable = createTable(
+  "goal",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .references(() => userTable.id)
+      .notNull(),
+    goalType: GoalTypeEnum("goal_type").default("Weight Maintenance").notNull(),
+    goalRate: GoalRateEnum("goal_rate").default("Moderate").notNull(),
+    startingWeight: decimal("starting_weight", {
+      precision: 10,
+      scale: 2,
+    })
+      .$type<number>()
+      .notNull(),
+    goalWeight: decimal("goal_weight", {
+      precision: 10,
+      scale: 2,
+    }).$type<number>(),
+    startDate: date("start_date", { mode: "date" }).notNull(),
+    status: GoalStatusEnum("status").notNull().default("InProgress"),
+  },
+  (table) => ({
+    uniqueInProgressGoal: uniqueIndex("unique_in_progress_goal")
+      .on(table.userId, table.status)
+      .where(sql`${table.status} = 'InProgress'`),
   })
-    .$type<number>()
-    .notNull(),
-  goalWeight: decimal("goal_weight", {
-    precision: 10,
-    scale: 2,
-  }).$type<number>(),
-  startDate: date("start_date", { mode: "date" }).notNull(),
-  status: GoalStatusEnum("status").notNull().default("InProgress"),
-});
+);
 
 export const accountTable = createTable(
   "account",
