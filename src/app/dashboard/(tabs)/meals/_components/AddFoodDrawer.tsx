@@ -55,7 +55,7 @@ const AddFoodDrawer = ({
   const { food, nutrients, portions } = foodData;
 
   const servingUnit =
-    food.type === "Branded" ? portions[0].servingSizeUnit : "g";
+    food.dataType === "Branded" ? portions[0].servingSizeUnit : "g";
 
   const handleSelect = (value: string) => {
     if (value === "1" || value === "100") {

@@ -307,7 +307,7 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
       case "edit-food":
         if (!food) return null;
         const servingUnit =
-          food.foodDetails.food.type === "Branded"
+          food.foodDetails.food.dataType === "Branded"
             ? food.foodDetails.portions[0].servingSizeUnit
             : "g";
 

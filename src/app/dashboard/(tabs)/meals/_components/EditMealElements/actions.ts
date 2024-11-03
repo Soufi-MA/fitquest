@@ -15,7 +15,7 @@ const AddFoodSchema = z.object({
   food: z.object({
     foodData: z.object({
       food: z.object({
-        foodId: z.number(),
+        id: z.number(),
         description: z.string(),
         type: z.string().nullish(),
       }),
@@ -126,7 +126,7 @@ export const addFoodToMeal = async (data: AddFoodInput) => {
         )
         .returning({ mealId: mealTable.id });
       const addedFood = await tx.insert(mealFoodTable).values({
-        foodId: data.food.foodData.food.foodId,
+        foodId: data.food.foodData.food.id,
         mealId: updatedMeal.mealId,
         servingSize: data.food.servingSize,
         quantity: data.food.quantity,

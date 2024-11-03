@@ -67,7 +67,7 @@ const MealSummary = ({
           const { food, nutrients, portions } = foodData;
 
           const servingUnit =
-            food.type === "Branded" ? portions[0].servingSizeUnit : "g";
+            food.dataType === "Branded" ? portions[0].servingSizeUnit : "g";
 
           const handleSelect = (value: string) => {
             if (value === "1" || value === "100") {
@@ -75,7 +75,7 @@ const MealSummary = ({
                 date: formData.date,
                 mealType: formData.mealType,
                 foodEntries: formData.foodEntries.map((foodEntry) =>
-                  foodEntry.foodData.food.foodId === food.foodId
+                  foodEntry.foodData.food.id === food.id
                     ? {
                         ...foodEntry,
                         servingSize: Number(value),
@@ -90,7 +90,7 @@ const MealSummary = ({
                 date: formData.date,
                 mealType: formData.mealType,
                 foodEntries: formData.foodEntries.map((foodEntry) =>
-                  foodEntry.foodData.food.foodId === food.foodId
+                  foodEntry.foodData.food.id === food.id
                     ? {
                         ...foodEntry,
                         servingSize: portion.servingSize,
@@ -116,8 +116,7 @@ const MealSummary = ({
                       date: formData.date,
                       mealType: formData.mealType,
                       foodEntries: formData.foodEntries.filter(
-                        (foodEntry) =>
-                          foodEntry.foodData.food.foodId != food.foodId
+                        (foodEntry) => foodEntry.foodData.food.id != food.id
                       ),
                     });
                   }}
@@ -163,7 +162,7 @@ const MealSummary = ({
                             date: formData.date,
                             mealType: formData.mealType,
                             foodEntries: formData.foodEntries.map((foodEntry) =>
-                              foodEntry.foodData.food.foodId === food.foodId
+                              foodEntry.foodData.food.id === food.id
                                 ? {
                                     ...foodEntry,
                                     quantity: Number(e.target.value),

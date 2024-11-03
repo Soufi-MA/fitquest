@@ -80,9 +80,9 @@ export const fetchFood = async (id: number) => {
 
   return {
     food: {
-      foodId: food.id,
+      id: food.id,
       description: food.description,
-      type: food.type,
+      dataType: food.type,
     },
     nutrients: foodDetailedNutrients,
     portions: foodDetailedPortions,
@@ -95,7 +95,7 @@ const LogMealSchema = z.object({
     .object({
       foodData: z.object({
         food: z.object({
-          foodId: z.number(),
+          id: z.number(),
           description: z.string(),
           type: z.string().nullish(),
         }),
@@ -189,7 +189,7 @@ export const logMeal = async (data: LogMealInput) => {
         .returning({ mealId: mealTable.id });
       await tx.insert(mealFoodTable).values(
         data.foods.map((food) => ({
-          foodId: food.foodData.food.foodId,
+          foodId: food.foodData.food.id,
           mealId: inserted.mealId,
           servingSize: food.servingSize,
           quantity: food.quantity,
