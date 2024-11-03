@@ -29,7 +29,9 @@ const MealLoggerDetails = async ({
                 ))
             ) : (
               <div className="flex flex-grow items-center justify-center h-full w-full">
-                <p className="text-2xl">Your meals will be displayed here</p>
+                <p className="text-2xl">
+                  Start logging meals by clicking add meal button
+                </p>
               </div>
             )}
           </div>
