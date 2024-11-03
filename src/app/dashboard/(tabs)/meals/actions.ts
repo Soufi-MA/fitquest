@@ -13,13 +13,42 @@ import {
   ActivityLevel,
   GoalRate,
   goalTable,
+  userFavoriteFoodsTable,
+  userRecentFoodsTable,
   userTable,
 } from "@/db/schema/user";
 import { getCurrentUser } from "@/lib/session";
 import { calculateAge } from "@/lib/utils";
-import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { and, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+
+export const fetchInitialFoodSuggestions = async () => {
+  const commonFoods = await db
+    .select()
+    .from(foodTable)
+    .where(
+      and(
+        eq(foodTable.dataType, "Foundation"),
+        or(
+          ilike(foodTable.description, "%milk%"),
+          ilike(foodTable.description, "%egg%"),
+          ilike(foodTable.description, "%bread%"),
+          ilike(foodTable.description, "%rice%"),
+          ilike(foodTable.description, "%chicken%"),
+          ilike(foodTable.description, "%apple%"),
+          ilike(foodTable.description, "%banana%")
+        )
+      )
+    )
+    .orderBy(
+      // Shorter descriptions first as they tend to be more basic/common foods
+      sql`length(${foodTable.description})`
+    )
+    .limit(20);
+
+  return commonFoods;
+};
 
 export const fetchFoods = async (query: string) => {
   const foods = await db
@@ -39,14 +68,12 @@ export const fetchFoods = async (query: string) => {
     `,
       foodTable.dataType
     )
-    .limit(10);
+    .limit(20);
 
   return foods;
 };
 
 export const fetchFood = async (id: number) => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
   const [food] = await db
     .select({
       id: foodTable.id,
@@ -88,6 +115,115 @@ export const fetchFood = async (id: number) => {
     portions: foodDetailedPortions,
   };
 };
+
+export async function toggleFavoriteFood(foodId: number) {
+  const user = await getCurrentUser();
+  if (!user) return { unauthorized: true };
+
+  const existing = await db
+    .select()
+    .from(userFavoriteFoodsTable)
+    .where(
+      and(
+        eq(userFavoriteFoodsTable.userId, user.id),
+        eq(userFavoriteFoodsTable.foodId, foodId)
+      )
+    );
+
+  if (existing.length > 0) {
+    // Remove favorite
+    await db
+      .delete(userFavoriteFoodsTable)
+      .where(
+        and(
+          eq(userFavoriteFoodsTable.userId, user.id),
+          eq(userFavoriteFoodsTable.foodId, foodId)
+        )
+      );
+  } else {
+    // Add favorite
+    await db.insert(userFavoriteFoodsTable).values({
+      userId: user.id,
+      foodId,
+    });
+  }
+  revalidatePath("/dashboard/meals");
+}
+
+export async function fetchFavoriteFoods() {
+  const user = await getCurrentUser();
+  if (!user) return undefined;
+
+  const userFavoriteFoodIds = await db
+    .select({ foodId: userFavoriteFoodsTable.foodId })
+    .from(userFavoriteFoodsTable)
+    .where(eq(userFavoriteFoodsTable.userId, user.id));
+  const ids = userFavoriteFoodIds.map((food) => food.foodId);
+
+  return db
+    .select()
+    .from(foodTable)
+    .where(inArray(foodTable.id, ids))
+    .limit(20);
+}
+
+export async function fetchRecentFoods() {
+  const user = await getCurrentUser();
+  if (!user) return undefined;
+
+  const userRecentFoodIds = await db
+    .select({ foodId: userRecentFoodsTable.foodId })
+    .from(userRecentFoodsTable)
+    .where(eq(userRecentFoodsTable.userId, user.id));
+  const ids = userRecentFoodIds.map((food) => food.foodId);
+
+  return db
+    .select()
+    .from(foodTable)
+    .where(inArray(foodTable.id, ids))
+    .limit(20);
+}
+
+export async function addToRecentFoods(foodId: number) {
+  const user = await getCurrentUser();
+  if (!user) return { unauthorized: true };
+
+  await db
+    .insert(userRecentFoodsTable)
+    .values({
+      userId: user.id,
+      foodId,
+    })
+    .onConflictDoUpdate({
+      target: [userRecentFoodsTable.userId, userRecentFoodsTable.foodId],
+      set: {
+        lastAccessed: new Date(),
+      },
+    });
+
+  // Optional: Maintain only last N recent items
+  const recentLimit = 20;
+  const recentCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(userRecentFoodsTable)
+    .where(eq(userRecentFoodsTable.userId, user.id));
+
+  if (recentCount[0].count > recentLimit) {
+    // Delete oldest items beyond the limit
+    await db.delete(userRecentFoodsTable).where(
+      and(
+        eq(userRecentFoodsTable.userId, user.id),
+        sql`${userRecentFoodsTable.lastAccessed} NOT IN (
+            SELECT last_accessed
+            FROM ${userRecentFoodsTable}
+            WHERE user_id = ${user.id}
+            ORDER BY last_accessed DESC
+            LIMIT ${recentLimit}
+          )`
+      )
+    );
+  }
+}
 
 const LogMealSchema = z.object({
   mealType: z.string(),
@@ -171,10 +307,12 @@ export const logMeal = async (data: LogMealInput) => {
   const user = await getCurrentUser();
 
   if (!user) return { authorized: false };
+
   try {
     const totals = calculateTotalNutrients(data);
 
     await db.transaction(async (tx) => {
+      // Insert meal
       const [inserted] = await tx
         .insert(mealTable)
         .values({
@@ -187,6 +325,8 @@ export const logMeal = async (data: LogMealInput) => {
           totalProtein: totals.totalProtein,
         })
         .returning({ mealId: mealTable.id });
+
+      // Insert meal foods
       await tx.insert(mealFoodTable).values(
         data.foods.map((food) => ({
           foodId: food.foodData.food.id,
@@ -196,14 +336,51 @@ export const logMeal = async (data: LogMealInput) => {
           portionId: food.foodPortionId,
         }))
       );
+
+      // Add each food to recent foods
+      for (const food of data.foods) {
+        await tx
+          .insert(userRecentFoodsTable)
+          .values({
+            userId: user.id,
+            foodId: food.foodData.food.id,
+          })
+          .onConflictDoUpdate({
+            target: [userRecentFoodsTable.userId, userRecentFoodsTable.foodId],
+            set: {
+              lastAccessed: new Date(),
+            },
+          });
+      }
+
+      // Cleanup old recent items (keep last 20)
+      const recentCount = await tx
+        .select({ count: sql<number>`count(*)` })
+        .from(userRecentFoodsTable)
+        .where(eq(userRecentFoodsTable.userId, user.id));
+
+      if (recentCount[0].count > 20) {
+        await tx.delete(userRecentFoodsTable).where(
+          and(
+            eq(userRecentFoodsTable.userId, user.id),
+            sql`${userRecentFoodsTable.lastAccessed} NOT IN (
+                SELECT last_accessed
+                FROM ${userRecentFoodsTable}
+                WHERE user_id = ${user.id}
+                ORDER BY last_accessed DESC
+                LIMIT 20
+              )`
+          )
+        );
+      }
     });
+
+    revalidatePath("/dashboard/meals");
+    return { success: true };
   } catch (error) {
-    console.log(error);
+    console.error("Error logging meal:", error);
+    return { success: false, error: "Failed to log meal" };
   }
-
-  revalidatePath("/dashboard/meals");
-
-  return { success: true };
 };
 
 export const fetchMealDetails = async (date: Date) => {
@@ -261,6 +438,7 @@ export const fetchMealDetails = async (date: Date) => {
 
   return fullMealDetails;
 };
+
 export const fetchUserGoal = async () => {
   const user = await getCurrentUser();
   if (!user) return null;
