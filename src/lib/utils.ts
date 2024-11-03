@@ -6,6 +6,22 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const calculateAge = (birthDate: Date) => {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+
+  // Adjust if the birthday hasn't occurred yet this year
+  if (
+    today.getMonth() < birth.getMonth() ||
+    (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
+};
+
 export function getStartOfWeek(today: Date) {
   const currentDay = today.getDay();
   const daysToSubtract = currentDay === 0 ? 6 : currentDay - 1;
