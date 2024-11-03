@@ -1,302 +1,409 @@
-// "use client";
+"use client";
 
-// import React, { useRef } from "react";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
-// import { useForm } from "react-hook-form";
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import {
-//   FinishSetupValidator,
-//   type TFinishSetupValidator,
-// } from "~/lib/validators/userValidators";
-// import { api } from "~/trpc/react";
-// import { toast } from "sonner";
-// import {
-//   Form,
-//   FormControl,
-//   FormField,
-//   FormItem,
-//   FormLabel,
-//   FormMessage,
-// } from "@/components/ui/form";
-// import { cn } from "@/lib/utils";
-// import { Loader2 } from "lucide-react";
-// import { useSession } from "next-auth/react";
-// import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { cn } from "@/lib/utils";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import {
+  finishSetupValidator,
+  FinishSetupValidator,
+} from "@/lib/validators/userValidators";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Gender,
+  GenderType,
+  LengthUnit,
+  LengthUnitType,
+  WeightUnit,
+  WeightUnitType,
+} from "@/db/schema/user";
+import { finishSetup } from "../actions";
+import { Calendar } from "@/components/ui/calendar";
 
 const OnboardingForm = () => {
-  // const { update } = useSession();
-  // const router = useRouter();
-  // const form = useForm<TFinishSetupValidator>({
-  //   resolver: zodResolver(FinishSetupValidator),
-  //   defaultValues: {
-  //     lengthUnit: "cm",
-  //     weightUnit: "kg",
-  //   },
-  // });
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  // const ftRef = useRef<HTMLInputElement>(null);
-  // const inchRef = useRef<HTMLInputElement>(null);
-  // const cmRef = useRef<HTMLInputElement>(null);
+  const form = useForm<FinishSetupValidator>({
+    resolver: zodResolver(finishSetupValidator),
+    defaultValues: {
+      name: "",
+      gender: Gender.MALE.value as GenderType,
+      height: 0,
+      lengthUnit: LengthUnit.CENTIMETER.value as LengthUnitType,
+      weight: 0,
+      weightUnit: WeightUnit.KILOGRAM.value as WeightUnitType,
+      birthDay: undefined,
+    },
+  });
 
-  // const { mutate, isPending } = api.users.finishSetup.useMutation({
-  //   onError: (e) => {
-  //     toast.error(e.message);
-  //   },
+  const heightUnit = form.watch("lengthUnit");
+  const weightUnit = form.watch("weightUnit");
 
-  //   onSuccess: async () => {
-  //     toast.success("Saved successfully");
-  //     await update();
-  //     router.replace("/dashboard");
-  //   },
-  // });
+  const [height, setHeight] = useState<number | undefined>(undefined);
+  const [feet, setFeet] = useState(
+    height ? Math.floor(height / 2.54 / 12) : undefined
+  );
+  const [inches, setInches] = useState(
+    height ? Math.floor(height / 2.54) % 12 : undefined
+  );
 
-  // const onSubmit = (data: TFinishSetupValidator) => {
-  //   mutate(data);
-  // };
+  const [weight, setWeight] = useState<number | undefined>(undefined);
+  const [lb, setLb] = useState(
+    weight ? Math.floor(weight / WeightUnit.POUND.conversion) : undefined
+  );
 
-  // const handleFtToCm = async (
-  //   e: React.ChangeEvent<HTMLInputElement>,
-  //   type: "ft" | "inch",
-  // ) => {
-  //   if (ftRef.current && inchRef.current && cmRef.current) {
-  //     const ftValue = Number(ftRef.current.value);
-  //     const inchValue = Number(inchRef.current.value);
-  //     cmRef.current.value = Math.round(
-  //       ftValue * 30.48 + inchValue * 2.54,
-  //     ).toString();
+  const sanitizeValue = (value: string, max: number) => {
+    const numricValue = Number(value);
+    if (isNaN(numricValue) || value === "") {
+      return undefined;
+    }
+    if (numricValue < 1) {
+      return 1;
+    } else if (numricValue > max) {
+      return max;
+    }
+    return numricValue;
+  };
 
-  //     form.setValue("height", Math.round(ftValue * 30.48 + inchValue * 2.54));
-  //     await form.trigger();
-  //     if (e.currentTarget) {
-  //       if (!e.currentTarget.value) {
-  //         e.currentTarget.value = "";
-  //         return;
-  //       }
-  //       if (type === "ft") {
-  //         e.currentTarget.value = Number(ftRef.current.value).toString();
-  //       } else {
-  //         e.currentTarget.value = Number(inchRef.current.value).toString();
-  //       }
-  //     }
-  //   }
-  // };
+  const handleCmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeValue(e.target.value, 300);
+    if (!sanitizedValue) {
+      setHeight(undefined);
+      setFeet(undefined);
+      setInches(undefined);
+      return;
+    }
 
-  // const handleCmToFt = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const cmValue = Number(e.currentTarget.value);
-  //   if (ftRef.current && inchRef.current) {
-  //     const ftValue = Math.floor(cmValue / 2.54 / 12);
-  //     const inchValue = cmValue / 2.54 - 12 * ftValue;
-  //     ftRef.current.value = ftValue.toFixed();
-  //     inchRef.current.value = inchValue.toFixed();
-  //     form.setValue("height", cmValue);
-  //     await form.trigger();
-  //     if (e.currentTarget) {
-  //       if (!e.currentTarget.value) {
-  //         e.currentTarget.value = "";
-  //         return;
-  //       }
-  //       e.currentTarget.value = cmValue.toString();
-  //     }
-  //   }
-  // };
+    form.setValue("height", sanitizedValue, { shouldValidate: true });
+    setHeight(sanitizedValue);
+    const totalInches = sanitizedValue / 2.54;
+    setFeet(Math.floor(totalInches / 12));
+    setInches(Math.round(totalInches % 12));
+  };
 
-  // return (
-  //   <Form {...form}>
-  //     <form
-  //       className="flex w-full select-none flex-col gap-2 p-4 md:px-8"
-  //       onSubmit={form.handleSubmit(onSubmit)}
-  //     >
-  //       <div className="grid w-full grid-cols-1 gap-2 md:grid-cols-2">
-  //         <FormField
-  //           control={form.control}
-  //           name="gender"
-  //           render={({ field }) => (
-  //             <FormItem className="space-y-2">
-  //               <FormLabel htmlFor="gender">Gender</FormLabel>
-  //               <FormControl>
-  //                 <Select
-  //                   defaultValue={field.value}
-  //                   onValueChange={field.onChange}
-  //                 >
-  //                   <SelectTrigger>
-  //                     <SelectValue placeholder="Select Gender" />
-  //                   </SelectTrigger>
-  //                   <SelectContent>
-  //                     <SelectItem value="Male">Male</SelectItem>
-  //                     <SelectItem value="Female">Female</SelectItem>
-  //                     <SelectItem value="Other">Other</SelectItem>
-  //                   </SelectContent>
-  //                 </Select>
-  //               </FormControl>
-  //               <FormMessage />
-  //             </FormItem>
-  //           )}
-  //         />
+  const handleFeetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeValue(e.target.value, 10);
+    if (!sanitizedValue) {
+      setHeight(undefined);
+      setFeet(undefined);
+      setInches(undefined);
+      return;
+    }
 
-  //         <FormField
-  //           control={form.control}
-  //           name="birthDay"
-  //           render={() => (
-  //             <FormItem className="space-y-2">
-  //               <FormLabel>Birth Day</FormLabel>
-  //               <FormControl>
-  //                 <Input
-  //                   className="cursor-pointer"
-  //                   type="date"
-  //                   {...form.register("birthDay", {
-  //                     valueAsDate: true,
-  //                   })}
-  //                 />
-  //               </FormControl>
-  //               <FormMessage />
-  //             </FormItem>
-  //           )}
-  //         />
-  //         <FormField
-  //           control={form.control}
-  //           name="height"
-  //           render={() => (
-  //             <FormItem className="space-y-2">
-  //               <div className="flex items-center gap-2">
-  //                 <FormLabel>Height</FormLabel>
-  //                 <FormField
-  //                   control={form.control}
-  //                   name="lengthUnit"
-  //                   render={({ field }) => (
-  //                     <FormControl>
-  //                       <Select
-  //                         defaultValue={field.value}
-  //                         onValueChange={field.onChange}
-  //                       >
-  //                         <SelectTrigger className="flex h-7 w-[80px]">
-  //                           <SelectValue />
-  //                         </SelectTrigger>
-  //                         <SelectContent className="min-w-0">
-  //                           <SelectItem value="cm">cm</SelectItem>
-  //                           <SelectItem value="ft">ft</SelectItem>
-  //                         </SelectContent>
-  //                       </Select>
-  //                     </FormControl>
-  //                   )}
-  //                 />
-  //               </div>
-  //               <FormControl>
-  //                 <div className="flex gap-1">
-  //                   <Input
-  //                     className="hidden"
-  //                     type="number"
-  //                     {...form.register("height", {
-  //                       valueAsNumber: true,
-  //                       validate: {
-  //                         positive: (v) => v > 0,
-  //                       },
-  //                     })}
-  //                     // disabled
-  //                   />
-  //                   <Input
-  //                     type="number"
-  //                     className={cn({
-  //                       hidden: form.getValues("lengthUnit") === "ft",
-  //                     })}
-  //                     disabled={form.getValues("lengthUnit") === "ft"}
-  //                     onChange={handleCmToFt}
-  //                     max={300}
-  //                     step={"any"}
-  //                     ref={cmRef}
-  //                   />
+    setFeet(sanitizedValue);
+    const feetInches = sanitizedValue * 12;
+    const totalInches = feetInches + (inches ?? 0);
+    form.setValue("height", Math.floor(totalInches * 2.54), {
+      shouldValidate: true,
+    });
+    setHeight(Math.floor(totalInches * 2.54));
+  };
 
-  //                   <Input
-  //                     className={cn({
-  //                       hidden: form.getValues("lengthUnit") === "cm",
-  //                     })}
-  //                     disabled={form.getValues("lengthUnit") === "cm"}
-  //                     id="heightFeet"
-  //                     type="number"
-  //                     placeholder="6'"
-  //                     ref={ftRef}
-  //                     step={1}
-  //                     onChange={(e) => handleFtToCm(e, "ft")}
-  //                     max={10}
-  //                   />
-  //                   <Input
-  //                     className={cn({
-  //                       hidden: form.getValues("lengthUnit") === "cm",
-  //                     })}
-  //                     disabled={form.getValues("lengthUnit") === "cm"}
-  //                     id="heightInches"
-  //                     type="number"
-  //                     placeholder="2''"
-  //                     ref={inchRef}
-  //                     step={1}
-  //                     onChange={(e) => handleFtToCm(e, "inch")}
-  //                     max={11}
-  //                   />
-  //                 </div>
-  //               </FormControl>
-  //               <FormMessage />
-  //             </FormItem>
-  //           )}
-  //         />
+  const handleInchesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeValue(e.target.value, 12);
+    if (!sanitizedValue) {
+      setHeight(undefined);
+      setFeet(undefined);
+      setInches(undefined);
+      return;
+    }
 
-  //         <FormField
-  //           control={form.control}
-  //           name="weight"
-  //           render={() => (
-  //             <FormItem className="space-y-2">
-  //               <div className="flex items-center gap-2">
-  //                 <FormLabel>Weight</FormLabel>
-  //                 <FormField
-  //                   control={form.control}
-  //                   name="weightUnit"
-  //                   render={({ field }) => (
-  //                     <FormControl>
-  //                       <Select
-  //                         defaultValue={field.value}
-  //                         onValueChange={field.onChange}
-  //                       >
-  //                         <SelectTrigger className="flex h-7 w-[80px]">
-  //                           <SelectValue />
-  //                         </SelectTrigger>
-  //                         <SelectContent className="min-w-0">
-  //                           <SelectItem value="kg">kg</SelectItem>
-  //                           <SelectItem value="lb">lb</SelectItem>
-  //                         </SelectContent>
-  //                       </Select>
-  //                     </FormControl>
-  //                   )}
-  //                 />
-  //               </div>
-  //               <FormControl>
-  //                 <Input
-  //                   type="number"
-  //                   {...form.register("weight", {
-  //                     valueAsNumber: true,
-  //                     validate: {
-  //                       positive: (v) => v > 0,
-  //                     },
-  //                   })}
-  //                 />
-  //               </FormControl>
-  //               <FormMessage />
-  //             </FormItem>
-  //           )}
-  //         />
-  //       </div>
-  //       <Button type="submit" disabled={!form.formState.isValid || isPending}>
-  //         {isPending ? <Loader2 className="animate-spin" /> : "Continue"}
-  //       </Button>
-  //     </form>
-  //   </Form>
-  // );
-  return <div></div>;
+    setInches(sanitizedValue);
+    const totalInches = (feet ?? 0) * 12 + sanitizedValue;
+    form.setValue("height", Math.floor(totalInches * 2.54), {
+      shouldValidate: true,
+    });
+    setHeight(Math.floor(totalInches * 2.54));
+  };
+
+  const handleKgChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeValue(e.target.value, 300);
+    if (!sanitizedValue) {
+      setWeight(undefined);
+      setLb(undefined);
+      return;
+    }
+
+    form.setValue("weight", sanitizedValue, { shouldValidate: true });
+    setWeight(sanitizedValue);
+    setLb(Math.floor(sanitizedValue * 2.2));
+  };
+
+  const handleLbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = sanitizeValue(e.target.value, 660);
+    if (!sanitizedValue) {
+      setWeight(undefined);
+      setLb(undefined);
+      return;
+    }
+    setLb(sanitizedValue);
+    form.setValue(
+      "weight",
+      Math.floor(sanitizedValue * WeightUnit.POUND.conversion),
+      {
+        shouldValidate: true,
+      }
+    );
+    setWeight(Math.floor(sanitizedValue * WeightUnit.POUND.conversion));
+  };
+
+  const onSubmit = async (data: FinishSetupValidator) => {
+    setIsLoading(true);
+    const res = await finishSetup(data);
+    if (res === "ok") {
+      toast({ title: "Saved Successfully!" });
+    }
+    setIsLoading(false);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="name">Name</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter your name" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="gender">Gender</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={Gender.MALE.value}>
+                      {Gender.MALE.label}
+                    </SelectItem>
+                    <SelectItem value={Gender.FEMALE.value}>
+                      {Gender.FEMALE.label}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex items-start gap-2">
+            <FormField
+              name="height"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel htmlFor="height">Height</FormLabel>
+                  <input {...field} hidden readOnly />
+
+                  <div className="flex gap-2 flex-grow">
+                    {heightUnit === "CENTIMETER" ? (
+                      <Input
+                        id="height"
+                        value={typeof height !== "undefined" ? height : ""}
+                        onChange={handleCmChange}
+                        placeholder="Centimeters"
+                        className="flex-grow"
+                      />
+                    ) : (
+                      <>
+                        <Input
+                          id="height-feet"
+                          value={typeof feet !== "undefined" ? feet : ""}
+                          onChange={handleFeetChange}
+                          placeholder="Feet"
+                          className="w-1/2"
+                        />
+                        <Input
+                          id="height-inches"
+                          value={typeof inches !== "undefined" ? inches : ""}
+                          onChange={handleInchesChange}
+                          placeholder="Inches"
+                          className="w-1/2"
+                        />
+                      </>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="lengthUnit"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="lengthUnit">Unit</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger className="w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={LengthUnit.CENTIMETER.value}>
+                        {LengthUnit.CENTIMETER.label}
+                      </SelectItem>
+                      <SelectItem value={LengthUnit.INCH.value}>
+                        {LengthUnit.INCH.label}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="flex items-start gap-2">
+            <FormField
+              name="weight"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel htmlFor="weight">Weight</FormLabel>
+                  <input {...field} hidden readOnly />
+                  <div className="flex gap-2 flex-grow">
+                    {weightUnit === "KILOGRAM" ? (
+                      <Input
+                        id="weight"
+                        value={typeof weight !== "undefined" ? weight : ""}
+                        onChange={handleKgChange}
+                        placeholder="Kilograms"
+                        className="flex-grow"
+                      />
+                    ) : (
+                      <Input
+                        id="weight"
+                        value={typeof lb !== "undefined" ? lb : ""}
+                        onChange={handleLbChange}
+                        placeholder="Pounds"
+                        className="flex-grow"
+                      />
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="weightUnit"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="weightUnit">Unit</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger className="w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={WeightUnit.KILOGRAM.value}>
+                        {WeightUnit.KILOGRAM.label}
+                      </SelectItem>
+                      <SelectItem value={WeightUnit.POUND.value}>
+                        {WeightUnit.POUND.label}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormField
+            control={form.control}
+            name="birthDay"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Date of birth</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      captionLayout="dropdown-buttons"
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      fromDate={new Date("1900-01-01")}
+                      toDate={
+                        new Date(
+                          new Date().setFullYear(new Date().getFullYear() - 18)
+                        )
+                      }
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" className="mt-4 w-full">
+          {isLoading ? (
+            <div className="flex gap-2 items-center">
+              <Loader2 className="animate-spin" /> Please Wait...
+            </div>
+          ) : (
+            "Continue"
+          )}
+        </Button>
+      </form>
+    </Form>
+  );
 };
 
 export default OnboardingForm;
