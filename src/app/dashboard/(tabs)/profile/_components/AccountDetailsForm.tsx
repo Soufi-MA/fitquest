@@ -58,7 +58,13 @@ import {
   updateUserValidator,
 } from "@/lib/validators/userValidators";
 import { useToast } from "@/hooks/use-toast";
-import { LengthUnitType, WeightUnitType } from "@/db/schema/user";
+import {
+  Gender,
+  LengthUnit,
+  LengthUnitType,
+  WeightUnit,
+  WeightUnitType,
+} from "@/db/schema/user";
 
 const AccountDetailsForm = ({
   user,
@@ -104,7 +110,9 @@ const AccountDetailsForm = ({
   const [weight, setWeight] = useState(
     user.weight ? Math.round(user.weight) : undefined
   );
-  const [lb, setLb] = useState(weight ? Math.floor(weight * 2.2) : undefined);
+  const [lb, setLb] = useState(
+    weight ? Math.floor(weight / WeightUnit.POUND.conversion) : undefined
+  );
 
   const sanitizeValue = (value: string, max: number) => {
     const numricValue = Number(value);
@@ -191,10 +199,14 @@ const AccountDetailsForm = ({
       return;
     }
     setLb(sanitizedValue);
-    form.setValue("weight", Math.floor(sanitizedValue / 2.2), {
-      shouldValidate: true,
-    });
-    setWeight(Math.floor(sanitizedValue / 2.2));
+    form.setValue(
+      "weight",
+      Math.floor(sanitizedValue * WeightUnit.POUND.conversion),
+      {
+        shouldValidate: true,
+      }
+    );
+    setWeight(Math.floor(sanitizedValue * WeightUnit.POUND.conversion));
   };
 
   const onSubmit = async (data: TUpdateUserValidator) => {
@@ -247,8 +259,12 @@ const AccountDetailsForm = ({
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Male">Male</SelectItem>
-                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value={Gender.MALE.value}>
+                          {Gender.MALE.label}
+                        </SelectItem>
+                        <SelectItem value={Gender.FEMALE.value}>
+                          {Gender.FEMALE.label}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -311,8 +327,12 @@ const AccountDetailsForm = ({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="cm">cm</SelectItem>
-                          <SelectItem value="in">ft</SelectItem>
+                          <SelectItem value={LengthUnit.CENTIMETER.value}>
+                            {LengthUnit.CENTIMETER.label}
+                          </SelectItem>
+                          <SelectItem value={LengthUnit.INCH.value}>
+                            {LengthUnit.INCH.label}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -364,8 +384,12 @@ const AccountDetailsForm = ({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="kg">kg</SelectItem>
-                          <SelectItem value="lb">lb</SelectItem>
+                          <SelectItem value={WeightUnit.KILOGRAM.value}>
+                            {WeightUnit.KILOGRAM.label}
+                          </SelectItem>
+                          <SelectItem value={WeightUnit.POUND.value}>
+                            {WeightUnit.POUND.label}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
