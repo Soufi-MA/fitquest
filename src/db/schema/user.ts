@@ -9,7 +9,9 @@ import {
   pgEnum,
   primaryKey,
   uniqueIndex,
+  integer,
 } from "drizzle-orm/pg-core";
+import { foodTable } from "./food";
 
 export const genderEnum = pgEnum("gender", ["MALE", "FEMALE"]);
 
@@ -148,8 +150,56 @@ export const preferenceTable = createTable("preference", {
   weightUnit: weightUnitEnum("weight_unit").notNull(),
 });
 
+export const userFavoriteFoodsTable = createTable(
+  "user_favorite_foods",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .references(() => userTable.id)
+      .notNull(),
+    foodId: integer("food_id")
+      .references(() => foodTable.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => {
+    return {
+      // Ensure user can't favorite same food twice
+      uniqUserFood: uniqueIndex("uniq_user_food").on(
+        table.userId,
+        table.foodId
+      ),
+    };
+  }
+);
+
+export const userRecentFoodsTable = createTable(
+  "user_recent_foods",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .references(() => userTable.id)
+      .notNull(),
+    foodId: integer("food_id")
+      .references(() => foodTable.id)
+      .notNull(),
+    lastAccessed: timestamp("last_accessed").defaultNow().notNull(),
+  },
+  (table) => {
+    return {
+      // Ensure user can't have duplicate recent foods
+      uniqUserFood: uniqueIndex("uniq_user_recent_food").on(
+        table.userId,
+        table.foodId
+      ),
+    };
+  }
+);
+
 export type LengthUnits = typeof preferenceTable.$inferInsert.lengthUnit;
 export type WeightUnits = typeof preferenceTable.$inferInsert.weightUnit;
+export type NewUserFavoriteFood = typeof userFavoriteFoodsTable.$inferInsert;
+export type NewUserRecentFood = typeof userRecentFoodsTable.$inferInsert;
 
 export type GenderType = (typeof genderEnum.enumValues)[number];
 export type LengthUnitType = (typeof lengthUnitEnum.enumValues)[number];
