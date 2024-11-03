@@ -15,9 +15,11 @@ const chartConfig = {} satisfies ChartConfig;
 export function RadialProgressChart({
   label,
   data,
+  current,
 }: {
   label: string;
   data: { name: string; progress: number; value: number; fill: string }[];
+  current?: number;
 }) {
   return (
     <ChartContainer
@@ -49,7 +51,9 @@ export function RadialProgressChart({
                       y={(viewBox.cy || 0) - 16}
                       className="fill-foreground text-2xl sm:text-4xl font-bold"
                     >
-                      {data[0].value.toFixed(0)}
+                      {current
+                        ? (current - data[0].value).toFixed(0)
+                        : data[0].value.toFixed(0)}
                     </tspan>
                     <tspan
                       x={viewBox.cx}
