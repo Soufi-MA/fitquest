@@ -1,12 +1,23 @@
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { fetchMealDetails } from "../actions";
+import {
+  fetchFavoriteFoods,
+  fetchInitialFoodSuggestions,
+  fetchMealDetails,
+  fetchRecentFoods,
+} from "../actions";
 import MealDetails from "./MealDetails";
 
 const MealLoggerDetails = async ({
   mealDetailsPromise,
+  favoriteFoodspromise,
+  initialFoodSuggestionspromise,
+  recentFoodspromise,
 }: {
   mealDetailsPromise: ReturnType<typeof fetchMealDetails>;
+  initialFoodSuggestionspromise: ReturnType<typeof fetchInitialFoodSuggestions>;
+  recentFoodspromise: ReturnType<typeof fetchRecentFoods>;
+  favoriteFoodspromise: ReturnType<typeof fetchFavoriteFoods>;
 }) => {
   const mealDetails = await mealDetailsPromise;
 
@@ -25,6 +36,11 @@ const MealLoggerDetails = async ({
                   <MealDetails
                     key={mealDetail.meal.id}
                     mealDetail={mealDetail}
+                    favoriteFoodspromise={favoriteFoodspromise}
+                    initialFoodSuggestionspromise={
+                      initialFoodSuggestionspromise
+                    }
+                    recentFoodspromise={recentFoodspromise}
                   />
                 ))
             ) : (

@@ -60,7 +60,12 @@ import {
   editMealName,
   editMealTime,
 } from "./EditMealElements/actions";
-import { fetchMealDetails } from "../actions";
+import {
+  fetchFavoriteFoods,
+  fetchInitialFoodSuggestions,
+  fetchMealDetails,
+  fetchRecentFoods,
+} from "../actions";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import NutrientsProportionsChart from "./AddMealElements/NutrientsProportionsChart";
@@ -69,7 +74,17 @@ type MealDetail = NonNullable<
   Awaited<ReturnType<typeof fetchMealDetails>>
 >[number];
 
-const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
+const MealDetails = ({
+  mealDetail,
+  favoriteFoodspromise,
+  initialFoodSuggestionspromise,
+  recentFoodspromise,
+}: {
+  mealDetail: MealDetail;
+  initialFoodSuggestionspromise: ReturnType<typeof fetchInitialFoodSuggestions>;
+  recentFoodspromise: ReturnType<typeof fetchRecentFoods>;
+  favoriteFoodspromise: ReturnType<typeof fetchFavoriteFoods>;
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [mealDialog, setMealDialog] = useState<string>("none");
   const [foodDialog, setFoodDialog] = useState<string>("none");
@@ -109,6 +124,9 @@ const MealDetails = ({ mealDetail }: { mealDetail: MealDetail }) => {
               setOpen={setOpen}
               setIsExpanded={setIsExpanded}
               startTransition={startTransition}
+              favoriteFoodspromise={favoriteFoodspromise}
+              initialFoodSuggestionspromise={initialFoodSuggestionspromise}
+              recentFoodspromise={recentFoodspromise}
             />
           </DialogContent>
         );

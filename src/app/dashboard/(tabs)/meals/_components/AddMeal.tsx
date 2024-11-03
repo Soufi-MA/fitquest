@@ -1,7 +1,12 @@
 "use client";
 
 import { useOptimistic, useState, useTransition } from "react";
-import { fetchFood } from "../actions";
+import {
+  fetchFavoriteFoods,
+  fetchFood,
+  fetchInitialFoodSuggestions,
+  fetchRecentFoods,
+} from "../actions";
 import SelectMealType from "./AddMealElements/SelectMealType";
 import AddFoodToMeal from "./AddMealElements/AddFoodToMeal";
 import MealSummary from "./AddMealElements/MealSummary";
@@ -28,7 +33,15 @@ type FormData = {
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
 
-const AddMeal = () => {
+const AddMeal = ({
+  initialFoodSuggestionspromise,
+  favoriteFoodspromise,
+  recentFoodspromise,
+}: {
+  initialFoodSuggestionspromise: ReturnType<typeof fetchInitialFoodSuggestions>;
+  recentFoodspromise: ReturnType<typeof fetchRecentFoods>;
+  favoriteFoodspromise: ReturnType<typeof fetchFavoriteFoods>;
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dateString = searchParams.get("date");
@@ -72,6 +85,9 @@ const AddMeal = () => {
       case 2:
         return (
           <AddFoodToMeal
+            initialFoodSuggestionspromise={initialFoodSuggestionspromise}
+            favoriteFoodspromise={favoriteFoodspromise}
+            recentFoodspromise={recentFoodspromise}
             formData={formData}
             setFormData={setFormData}
             setStep={setStep}

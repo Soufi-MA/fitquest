@@ -1,11 +1,6 @@
 "use client";
 
-import React, {
-  ReactNode,
-  useOptimistic,
-  useState,
-  useTransition,
-} from "react";
+import React, { useOptimistic, useState, useTransition } from "react";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +14,11 @@ import { cn, getDateFromSearchParams, getStartOfWeek } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import AddMeal from "./AddMeal";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  fetchFavoriteFoods,
+  fetchInitialFoodSuggestions,
+  fetchRecentFoods,
+} from "../actions";
 
 const weekMap: Record<string, string> = {
   "0": "Sun",
@@ -30,7 +30,15 @@ const weekMap: Record<string, string> = {
   "6": "Sat",
 };
 
-const MealLoggerHeader = () => {
+const MealLoggerHeader = ({
+  initialFoodSuggestionspromise,
+  favoriteFoodspromise,
+  recentFoodspromise,
+}: {
+  initialFoodSuggestionspromise: ReturnType<typeof fetchInitialFoodSuggestions>;
+  recentFoodspromise: ReturnType<typeof fetchRecentFoods>;
+  favoriteFoodspromise: ReturnType<typeof fetchFavoriteFoods>;
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const date = searchParams.get("date");
@@ -59,7 +67,11 @@ const MealLoggerHeader = () => {
           <p className="text-lg font-semibold md:text-2xl">Meal Logger</p>
         </div>
         <div className="flex flex-col sm:flex-row items-end sm:items-center justify-center gap-2">
-          <AddMeal />
+          <AddMeal
+            initialFoodSuggestionspromise={initialFoodSuggestionspromise}
+            favoriteFoodspromise={favoriteFoodspromise}
+            recentFoodspromise={recentFoodspromise}
+          />
           <div className="flex gap-1 items-center justify-between">
             <Button
               onClick={() => {
