@@ -11,24 +11,37 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-export const GenderEnum = pgEnum("gender", ["Male", "Female"]);
-export const LengthUnitEnum = pgEnum("length_unit", ["cm", "in"]);
-export const WeightUnitEnum = pgEnum("weight_unit", ["kg", "lb"]);
-export const PlanEnum = pgEnum("plan", ["Premium", "Free"]);
-export const GoalTypeEnum = pgEnum("goal_type", [
-  "Weight Loss",
-  "Muscle Gain",
-  "Weight Maintenance",
+export const genderEnum = pgEnum("gender", ["MALE", "FEMALE"]);
+
+export const lengthUnitEnum = pgEnum("length_unit", ["CENTIMETER", "INCH"]);
+
+export const weightUnitEnum = pgEnum("weight_unit", ["KILOGRAM", "POUND"]);
+
+export const planEnum = pgEnum("plan", ["PREMIUM", "FREE"]);
+
+export const goalTypeEnum = pgEnum("goal_type", [
+  "WEIGHT_LOSS",
+  "MUSCLE_GAIN",
+  "WEIGHT_MAINTENANCE",
 ]);
-export const GoalStatusEnum = pgEnum("goal_status", [
-  "InProgress",
-  "Completed",
-  "Abandoned",
+
+export const goalStatusEnum = pgEnum("goal_status", [
+  "IN_PROGRESS",
+  "COMPLETED",
+  "ABANDONED",
 ]);
-export const GoalRateEnum = pgEnum("goal_rate", [
-  "Slow",
-  "Moderate",
-  "Aggressive",
+
+export const goalRateEnum = pgEnum("goal_rate", [
+  "SLOW",
+  "MODERATE",
+  "AGGRESSIVE",
+]);
+export const activityLevelEnum = pgEnum("activity_level", [
+  "SEDENTARY",
+  "LIGHTLY_ACTIVE",
+  "MODERATELY_ACTIVE",
+  "VERY_ACTIVE",
+  "EXTREMELY_ACTIVE",
 ]);
 
 const createTable = pgTableCreator((name) => `fitquest_${name}`);
@@ -42,7 +55,7 @@ export const userTable = createTable("user", {
     mode: "date",
   }),
   profilePicture: text("profile_picture"),
-  gender: GenderEnum("gender").notNull(),
+  gender: genderEnum("gender").notNull(),
   birthDay: date("birth_day", {
     mode: "date",
   }).notNull(),
@@ -52,7 +65,10 @@ export const userTable = createTable("user", {
   weight: decimal("weight", { precision: 10, scale: 2 })
     .$type<number>()
     .notNull(),
-  plan: PlanEnum("plan").notNull().default("Free"),
+  activityLevel: activityLevelEnum("activity_level")
+    .default("MODERATELY_ACTIVE")
+    .notNull(),
+  plan: planEnum("plan").notNull().default("FREE"),
 });
 
 export const goalTable = createTable(
@@ -62,8 +78,8 @@ export const goalTable = createTable(
     userId: text("user_id")
       .references(() => userTable.id)
       .notNull(),
-    goalType: GoalTypeEnum("goal_type").default("Weight Maintenance").notNull(),
-    goalRate: GoalRateEnum("goal_rate").default("Moderate").notNull(),
+    goalType: goalTypeEnum("goal_type").default("WEIGHT_MAINTENANCE").notNull(),
+    goalRate: goalRateEnum("goal_rate").default("MODERATE").notNull(),
     startingWeight: decimal("starting_weight", {
       precision: 10,
       scale: 2,
@@ -75,7 +91,7 @@ export const goalTable = createTable(
       scale: 2,
     }).$type<number>(),
     startDate: date("start_date", { mode: "date" }).notNull(),
-    status: GoalStatusEnum("status").notNull().default("InProgress"),
+    status: goalStatusEnum("status").notNull().default("IN_PROGRESS"),
   },
   (table) => ({
     uniqueInProgressGoal: uniqueIndex("unique_in_progress_goal")
@@ -128,9 +144,165 @@ export const preferenceTable = createTable("preference", {
     .references(() => userTable.id)
     .notNull()
     .unique(),
-  lengthUnit: LengthUnitEnum("length_unit").notNull(),
-  weightUnit: WeightUnitEnum("weight_unit").notNull(),
+  lengthUnit: lengthUnitEnum("length_unit").notNull(),
+  weightUnit: weightUnitEnum("weight_unit").notNull(),
 });
 
 export type LengthUnits = typeof preferenceTable.$inferInsert.lengthUnit;
 export type WeightUnits = typeof preferenceTable.$inferInsert.weightUnit;
+
+export type GenderType = (typeof genderEnum.enumValues)[number];
+export type LengthUnitType = (typeof lengthUnitEnum.enumValues)[number];
+export type WeightUnitType = (typeof weightUnitEnum.enumValues)[number];
+export type ActivityLevelType = (typeof activityLevelEnum.enumValues)[number];
+
+export type PlanType = (typeof planEnum.enumValues)[number];
+export type GoalType = (typeof goalTypeEnum.enumValues)[number];
+export type GoalStatusType = (typeof goalStatusEnum.enumValues)[number];
+export type GoalRateType = (typeof goalRateEnum.enumValues)[number];
+// Configuration objects
+export const Gender: Record<GenderType, { label: string }> = {
+  MALE: { label: "Male" },
+  FEMALE: { label: "Female" },
+};
+
+export const LengthUnit: Record<
+  LengthUnitType,
+  { label: string; conversion: number }
+> = {
+  CENTIMETER: { label: "cm", conversion: 1 },
+  INCH: { label: "in", conversion: 2.54 }, // 1 inch = 2.54 cm
+};
+
+export const WeightUnit: Record<
+  WeightUnitType,
+  { label: string; conversion: number }
+> = {
+  KILOGRAM: { label: "kg", conversion: 1 },
+  POUND: { label: "lb", conversion: 0.453592 }, // 1 lb = 0.453592 kg
+};
+
+export const ActivityLevel: Record<
+  ActivityLevelType,
+  { multiplier: number; description: string }
+> = {
+  SEDENTARY: {
+    multiplier: 1.2,
+    description: "Little or no exercise, desk job",
+  },
+  LIGHTLY_ACTIVE: {
+    multiplier: 1.375,
+    description: "Light exercise 1-3 days/week",
+  },
+  MODERATELY_ACTIVE: {
+    multiplier: 1.55,
+    description: "Moderate exercise 3-5 days/week",
+  },
+  VERY_ACTIVE: {
+    multiplier: 1.725,
+    description: "Heavy exercise 6-7 days/week",
+  },
+  EXTREMELY_ACTIVE: {
+    multiplier: 1.9,
+    description: "Very heavy exercise, physical job or training twice per day",
+  },
+};
+
+export const Plan: Record<PlanType, { label: string }> = {
+  PREMIUM: { label: "Premium" },
+  FREE: { label: "Free" },
+};
+
+export const GoalType: Record<GoalType, { label: string }> = {
+  WEIGHT_LOSS: { label: "Weight Loss" },
+  MUSCLE_GAIN: { label: "Muscle Gain" },
+  WEIGHT_MAINTENANCE: { label: "Weight Maintenance" },
+};
+
+export const GoalStatus: Record<GoalStatusType, { label: string }> = {
+  IN_PROGRESS: { label: "In Progress" },
+  COMPLETED: { label: "Completed" },
+  ABANDONED: { label: "Abandoned" },
+};
+
+export const GoalRate: Record<
+  GoalRateType,
+  {
+    label: string;
+    percentage: number;
+    weightLossPerWeek: {
+      kg: number;
+      lb: number;
+      description: string;
+    };
+    weightGainPerWeek: {
+      kg: number;
+      lb: number;
+      description: string;
+    };
+    calorieAdjustment: {
+      deficit: number;
+      surplus: number;
+    };
+  }
+> = {
+  SLOW: {
+    label: "Slow",
+    percentage: 10,
+    weightLossPerWeek: {
+      kg: 0.25,
+      lb: 0.55,
+      description:
+        "Gradual, sustainable weight loss at 0.25 kg (0.55 lb) per week",
+    },
+    weightGainPerWeek: {
+      kg: 0.125,
+      lb: 0.275,
+      description:
+        "Lean muscle gain with minimal fat at 0.125 kg (0.275 lb) per week",
+    },
+    calorieAdjustment: {
+      deficit: 250, // 250 calorie deficit per day
+      surplus: 125, // 125 calorie surplus per day
+    },
+  },
+  MODERATE: {
+    label: "Moderate",
+    percentage: 20,
+    weightLossPerWeek: {
+      kg: 0.5,
+      lb: 1.1,
+      description:
+        "Standard recommended weight loss at 0.5 kg (1.1 lb) per week",
+    },
+    weightGainPerWeek: {
+      kg: 0.25,
+      lb: 0.55,
+      description: "Balanced muscle gain at 0.25 kg (0.55 lb) per week",
+    },
+    calorieAdjustment: {
+      deficit: 500, // 500 calorie deficit per day
+      surplus: 250, // 250 calorie surplus per day
+    },
+  },
+  AGGRESSIVE: {
+    label: "Aggressive",
+    percentage: 30,
+    weightLossPerWeek: {
+      kg: 0.75,
+      lb: 1.65,
+      description:
+        "Maximum recommended weight loss at 0.75 kg (1.65 lb) per week",
+    },
+    weightGainPerWeek: {
+      kg: 0.5,
+      lb: 1.1,
+      description:
+        "Maximum recommended muscle gain at 0.5 kg (1.1 lb) per week",
+    },
+    calorieAdjustment: {
+      deficit: 750, // 750 calorie deficit per day
+      surplus: 500, // 500 calorie surplus per day
+    },
+  },
+};

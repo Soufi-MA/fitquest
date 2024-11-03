@@ -25,17 +25,17 @@ export type TAccountDetailsValidator = z.infer<typeof AccountDetailsValidator>;
 
 export const updateUserValidator = z.object({
   name: z.string().min(1, "Name is required"),
-  gender: z.enum(["Male", "Female"]),
+  gender: z.enum(["MALE", "FEMALE"]),
   height: z
     .number()
     .min(100, "Minimum height exceeded")
     .max(300, "Maximum height exceeded"),
-  heightUnit: z.enum(["cm", "in"]),
+  heightUnit: z.enum(["CENTIMETER", "INCH"]),
   weight: z
     .number()
     .min(30, "Minimum weight exceeded")
     .max(300, "Maximum weight exceeded"),
-  weightUnit: z.enum(["kg", "lb"]),
+  weightUnit: z.enum(["KILOGRAM", "POUND"]),
   birthDay: z.date(),
 });
 export type TUpdateUserValidator = z.infer<typeof updateUserValidator>;

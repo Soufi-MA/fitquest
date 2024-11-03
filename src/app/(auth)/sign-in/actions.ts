@@ -21,10 +21,10 @@ export const dummySignin = async () => {
       email: "JohnDoe@example.com",
       emailVerified: new Date(),
       birthDay: new Date("2000-01-01"),
-      gender: "Male",
+      gender: "MALE",
       height: 180,
       weight: 80,
-      plan: "Free",
+      plan: "FREE",
     });
     setSession(id);
     redirect("/dashboard");
