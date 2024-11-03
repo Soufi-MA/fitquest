@@ -211,74 +211,86 @@ export type GoalType = (typeof goalTypeEnum.enumValues)[number];
 export type GoalStatusType = (typeof goalStatusEnum.enumValues)[number];
 export type GoalRateType = (typeof goalRateEnum.enumValues)[number];
 // Configuration objects
-export const Gender: Record<GenderType, { label: string }> = {
-  MALE: { label: "Male" },
-  FEMALE: { label: "Female" },
+export const Gender: Record<GenderType, { label: string; value: string }> = {
+  MALE: { label: "Male", value: "MALE" },
+  FEMALE: { label: "Female", value: "FEMALE" },
 };
 
 export const LengthUnit: Record<
   LengthUnitType,
-  { label: string; conversion: number }
+  { label: string; value: string; conversion: number }
 > = {
-  CENTIMETER: { label: "cm", conversion: 1 },
-  INCH: { label: "in", conversion: 2.54 }, // 1 inch = 2.54 cm
+  CENTIMETER: { label: "cm", value: "CENTIMETER", conversion: 1 },
+  INCH: { label: "in", value: "INCH", conversion: 2.54 }, // 1 inch = 2.54 cm
 };
 
 export const WeightUnit: Record<
   WeightUnitType,
-  { label: string; conversion: number }
+  { label: string; value: string; conversion: number }
 > = {
-  KILOGRAM: { label: "kg", conversion: 1 },
-  POUND: { label: "lb", conversion: 0.453592 }, // 1 lb = 0.453592 kg
+  KILOGRAM: { label: "kg", value: "KILOGRAM", conversion: 1 },
+  POUND: { label: "lb", value: "POUND", conversion: 0.453592 }, // 1 lb = 0.453592 kg
 };
 
 export const ActivityLevel: Record<
   ActivityLevelType,
-  { multiplier: number; description: string }
+  { multiplier: number; description: string; value: string }
 > = {
   SEDENTARY: {
     multiplier: 1.2,
     description: "Little or no exercise, desk job",
+    value: "SEDENTARY",
   },
   LIGHTLY_ACTIVE: {
     multiplier: 1.375,
     description: "Light exercise 1-3 days/week",
+    value: "LIGHTLY_ACTIVE",
   },
   MODERATELY_ACTIVE: {
     multiplier: 1.55,
     description: "Moderate exercise 3-5 days/week",
+    value: "MODERATELY_ACTIVE",
   },
   VERY_ACTIVE: {
     multiplier: 1.725,
     description: "Heavy exercise 6-7 days/week",
+    value: "VERY_ACTIVE",
   },
   EXTREMELY_ACTIVE: {
     multiplier: 1.9,
     description: "Very heavy exercise, physical job or training twice per day",
+    value: "EXTREMELY_ACTIVE",
   },
 };
 
-export const Plan: Record<PlanType, { label: string }> = {
-  PREMIUM: { label: "Premium" },
-  FREE: { label: "Free" },
+export const Plan: Record<PlanType, { label: string; value: string }> = {
+  PREMIUM: { label: "Premium", value: "PREMIUM" },
+  FREE: { label: "Free", value: "FREE" },
 };
 
-export const GoalType: Record<GoalType, { label: string }> = {
-  WEIGHT_LOSS: { label: "Weight Loss" },
-  MUSCLE_GAIN: { label: "Muscle Gain" },
-  WEIGHT_MAINTENANCE: { label: "Weight Maintenance" },
+export const GoalType: Record<GoalType, { label: string; value: string }> = {
+  WEIGHT_LOSS: { label: "Weight Loss", value: "WEIGHT_LOSS" },
+  MUSCLE_GAIN: { label: "Muscle Gain", value: "MUSCLE_GAIN" },
+  WEIGHT_MAINTENANCE: {
+    label: "Weight Maintenance",
+    value: "WEIGHT_MAINTENANCE",
+  },
 };
 
-export const GoalStatus: Record<GoalStatusType, { label: string }> = {
-  IN_PROGRESS: { label: "In Progress" },
-  COMPLETED: { label: "Completed" },
-  ABANDONED: { label: "Abandoned" },
+export const GoalStatus: Record<
+  GoalStatusType,
+  { label: string; value: string }
+> = {
+  IN_PROGRESS: { label: "In Progress", value: "IN_PROGRESS" },
+  COMPLETED: { label: "Completed", value: "COMPLETED" },
+  ABANDONED: { label: "Abandoned", value: "ABANDONED" },
 };
 
 export const GoalRate: Record<
   GoalRateType,
   {
     label: string;
+    value: string;
     percentage: number;
     weightLossPerWeek: {
       kg: number;
@@ -298,6 +310,7 @@ export const GoalRate: Record<
 > = {
   SLOW: {
     label: "Slow",
+    value: "SLOW",
     percentage: 10,
     weightLossPerWeek: {
       kg: 0.25,
@@ -318,6 +331,7 @@ export const GoalRate: Record<
   },
   MODERATE: {
     label: "Moderate",
+    value: "MODERATE",
     percentage: 20,
     weightLossPerWeek: {
       kg: 0.5,
@@ -337,6 +351,7 @@ export const GoalRate: Record<
   },
   AGGRESSIVE: {
     label: "Aggressive",
+    value: "AGGRESSIVE",
     percentage: 30,
     weightLossPerWeek: {
       kg: 0.75,
