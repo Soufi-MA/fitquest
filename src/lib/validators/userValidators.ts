@@ -8,28 +8,23 @@ import {
 } from "@/db/schema/user";
 import { z } from "zod";
 
-export const FinishSetupValidator = z.object({
+export const finishSetupValidator = z.object({
+  name: z.string().min(3),
   gender: z.enum(Object.keys(Gender) as [GenderType]),
   birthDay: z.date().max(new Date()),
   lengthUnit: z.enum(Object.keys(LengthUnit) as [LengthUnitType]),
   weightUnit: z.enum(Object.keys(WeightUnit) as [WeightUnitType]),
-  height: z.number().min(1),
-  weight: z.number().min(1),
+  height: z
+    .number()
+    .min(100, "Minimum height exceeded")
+    .max(300, "Maximum height exceeded"),
+  weight: z
+    .number()
+    .min(30, "Minimum weight exceeded")
+    .max(300, "Maximum weight exceeded"),
 });
 
-export type TFinishSetupValidator = z.infer<typeof FinishSetupValidator>;
-
-export const AccountDetailsValidator = z.object({
-  name: z.string(),
-  gender: z.enum(Object.keys(Gender) as [GenderType]),
-  birthDay: z.date().max(new Date()),
-  lengthUnit: z.enum(Object.keys(LengthUnit) as [LengthUnitType]),
-  weightUnit: z.enum(Object.keys(WeightUnit) as [WeightUnitType]),
-  height: z.number().min(1),
-  weight: z.number().min(1),
-});
-
-export type TAccountDetailsValidator = z.infer<typeof AccountDetailsValidator>;
+export type FinishSetupValidator = z.infer<typeof finishSetupValidator>;
 
 export const updateUserValidator = z.object({
   name: z.string().min(1, "Name is required"),
@@ -46,4 +41,4 @@ export const updateUserValidator = z.object({
   weightUnit: z.enum(Object.keys(WeightUnit) as [WeightUnitType]),
   birthDay: z.date(),
 });
-export type TUpdateUserValidator = z.infer<typeof updateUserValidator>;
+export type UpdateUserValidator = z.infer<typeof updateUserValidator>;
