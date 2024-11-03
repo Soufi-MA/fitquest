@@ -3,7 +3,7 @@
 import { db } from "@/db/connection";
 import { preferenceTable, userTable } from "@/db/schema/user";
 import { getCurrentUser } from "@/lib/session";
-import { TUpdateUserValidator } from "@/lib/validators/userValidators";
+import { UpdateUserValidator } from "@/lib/validators/userValidators";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -19,7 +19,7 @@ export const getUserPreference = async () => {
   return preference;
 };
 
-export const updateUser = async (data: TUpdateUserValidator) => {
+export const updateUser = async (data: UpdateUserValidator) => {
   const user = await getCurrentUser();
   if (!user) return "not found";
 

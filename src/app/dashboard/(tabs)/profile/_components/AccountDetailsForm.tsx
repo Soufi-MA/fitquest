@@ -54,7 +54,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  TUpdateUserValidator,
+  UpdateUserValidator,
   updateUserValidator,
 } from "@/lib/validators/userValidators";
 import { useToast } from "@/hooks/use-toast";
@@ -81,7 +81,7 @@ const AccountDetailsForm = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<TUpdateUserValidator>({
+  const form = useForm<UpdateUserValidator>({
     resolver: zodResolver(updateUserValidator),
     defaultValues: {
       name: user.name,
@@ -209,7 +209,7 @@ const AccountDetailsForm = ({
     setWeight(Math.floor(sanitizedValue * WeightUnit.POUND.conversion));
   };
 
-  const onSubmit = async (data: TUpdateUserValidator) => {
+  const onSubmit = async (data: UpdateUserValidator) => {
     setIsLoading(true);
     const res = await updateUser(data);
     if (res === "ok") {
