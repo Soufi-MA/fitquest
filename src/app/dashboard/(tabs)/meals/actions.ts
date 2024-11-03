@@ -9,7 +9,14 @@ import {
   mealTable,
   nutrientTable,
 } from "@/db/schema/food";
+import {
+  ActivityLevel,
+  GoalRate,
+  goalTable,
+  userTable,
+} from "@/db/schema/user";
 import { getCurrentUser } from "@/lib/session";
+import { calculateAge } from "@/lib/utils";
 import { and, eq, gte, lte, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -253,6 +260,130 @@ export const fetchMealDetails = async (date: Date) => {
   );
 
   return fullMealDetails;
+};
+export const fetchUserGoal = async () => {
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  const [currentUser] = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.id, user.id));
+
+  const [userGoal] = await db
+    .select()
+    .from(goalTable)
+    .where(
+      and(eq(goalTable.userId, user.id), eq(goalTable.status, "IN_PROGRESS"))
+    );
+
+  if (!currentUser.weight) return null;
+
+  // Calculate BMR using Mifflin-St Jeor Equation
+  const age = calculateAge(currentUser.birthDay);
+
+  const bmr =
+    10 * currentUser.weight +
+    6.25 * currentUser.height -
+    5 * age +
+    (currentUser.gender === "MALE" ? 5 : -161);
+
+  // Calculate TDEE using activity level multiplier
+  const tdee = Math.round(
+    bmr * ActivityLevel[currentUser.activityLevel].multiplier
+  );
+
+  let dailyCalories: number;
+  let macroRatios: {
+    protein: number;
+    carbs: number;
+    fats: number;
+  };
+
+  const goalRateInfo = GoalRate[userGoal ? userGoal.goalRate : "MODERATE"];
+
+  switch (userGoal?.goalType) {
+    case "WEIGHT_LOSS":
+      dailyCalories = Math.round(tdee - goalRateInfo.calorieAdjustment.deficit);
+      macroRatios = {
+        protein: 0.4, // Higher protein for muscle preservation during deficit
+        carbs: 0.35,
+        fats: 0.25,
+      };
+      break;
+
+    case "MUSCLE_GAIN":
+      dailyCalories = Math.round(tdee + goalRateInfo.calorieAdjustment.surplus);
+      macroRatios = {
+        protein: 0.3,
+        carbs: 0.45, // Higher carbs for muscle glycogen and recovery
+        fats: 0.25,
+      };
+      break;
+
+    case "WEIGHT_MAINTENANCE":
+      dailyCalories = tdee;
+      macroRatios = {
+        protein: 0.3,
+        carbs: 0.4,
+        fats: 0.3,
+      };
+      break;
+
+    default:
+      dailyCalories = tdee;
+      macroRatios = {
+        protein: 0.3,
+        carbs: 0.4,
+        fats: 0.3,
+      };
+      break;
+  }
+
+  // Calculate macro grams
+  const macroGrams = {
+    protein: Math.round((dailyCalories * macroRatios.protein) / 4), // 4 calories per gram
+    carbs: Math.round((dailyCalories * macroRatios.carbs) / 4), // 4 calories per gram
+    fats: Math.round((dailyCalories * macroRatios.fats) / 9), // 9 calories per gram
+  };
+
+  // Calculate projected weekly change
+  const weeklyChange = userGoal
+    ? userGoal.goalType === "WEIGHT_LOSS"
+      ? goalRateInfo.weightLossPerWeek
+      : userGoal.goalType === "MUSCLE_GAIN"
+      ? goalRateInfo.weightGainPerWeek
+      : 0
+    : 0;
+
+  return {
+    goal: userGoal,
+    nutrition: {
+      tdee,
+      dailyCalories,
+      macroRatios,
+      macroGrams,
+      calorieAdjustment: userGoal
+        ? userGoal?.goalType === "WEIGHT_MAINTENANCE"
+          ? 0
+          : userGoal?.goalType === "WEIGHT_LOSS"
+          ? -goalRateInfo.calorieAdjustment.deficit
+          : goalRateInfo.calorieAdjustment.surplus
+        : 0,
+    },
+    projectedChanges: weeklyChange
+      ? {
+          weeklyChange,
+          estimatedDuration:
+            weeklyChange.kg > 0
+              ? Math.round(
+                  Math.abs(currentUser.weight - userGoal.goalWeight!) /
+                    weeklyChange.kg
+                )
+              : null,
+        }
+      : null,
+  };
 };
 
 export const fetchFoodEntries = async (mealId: string) => {
