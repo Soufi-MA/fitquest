@@ -4,6 +4,7 @@ import { GitHub, Google } from "arctic";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import type { Session, User } from "lucia";
+import { GenderType } from "@/db/schema/user";
 
 export const github = new GitHub(
   process.env.AUTH_GITHUB_ID!,
@@ -50,7 +51,7 @@ declare module "lucia" {
 interface DatabaseUserAttributes {
   id: number;
   name: string;
-  gender?: "Male" | "Female";
+  gender?: GenderType;
   profilePicture?: string;
   birthDay?: Date;
   height?: number;

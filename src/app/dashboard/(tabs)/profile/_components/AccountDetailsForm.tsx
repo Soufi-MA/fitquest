@@ -58,6 +58,7 @@ import {
   updateUserValidator,
 } from "@/lib/validators/userValidators";
 import { useToast } from "@/hooks/use-toast";
+import { LengthUnitType, WeightUnitType } from "@/db/schema/user";
 
 const AccountDetailsForm = ({
   user,
@@ -67,8 +68,8 @@ const AccountDetailsForm = ({
   userPreference: {
     id: string;
     userId: string;
-    lengthUnit: "cm" | "in";
-    weightUnit: "kg" | "lb";
+    lengthUnit: LengthUnitType;
+    weightUnit: WeightUnitType;
   } | null;
 }) => {
   const { toast } = useToast();
@@ -80,9 +81,9 @@ const AccountDetailsForm = ({
       name: user.name,
       gender: user.gender,
       height: Number(user.height) ?? 0,
-      heightUnit: userPreference?.lengthUnit ?? "cm",
+      heightUnit: userPreference?.lengthUnit,
       weight: Number(user.weight) ?? 0,
-      weightUnit: userPreference?.weightUnit ?? "kg",
+      weightUnit: userPreference?.weightUnit,
       birthDay: user.birthDay,
     },
   });
@@ -264,7 +265,7 @@ const AccountDetailsForm = ({
                       <input {...field} hidden readOnly />
 
                       <div className="flex gap-2 flex-grow">
-                        {heightUnit === "cm" ? (
+                        {heightUnit === "CENTIMETER" ? (
                           <Input
                             id="height"
                             value={typeof height !== "undefined" ? height : ""}
@@ -327,7 +328,7 @@ const AccountDetailsForm = ({
                       <FormLabel htmlFor="weight">Weight</FormLabel>
                       <input {...field} hidden readOnly />
                       <div className="flex gap-2 flex-grow">
-                        {weightUnit === "kg" ? (
+                        {weightUnit === "KILOGRAM" ? (
                           <Input
                             id="weight"
                             value={typeof weight !== "undefined" ? weight : ""}
