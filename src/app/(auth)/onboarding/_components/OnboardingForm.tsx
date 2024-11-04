@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -29,42 +29,220 @@ import {
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import {
-  finishSetupValidator,
-  FinishSetupValidator,
-} from "@/lib/validators/userValidators";
-import { useToast } from "@/hooks/use-toast";
-import {
+  ActivityLevel,
   Gender,
   GenderType,
+  Goal,
+  GoalRate,
   LengthUnit,
   LengthUnitType,
   WeightUnit,
   WeightUnitType,
 } from "@/db/schema/user";
-import { finishSetup } from "../actions";
+import {
+  submitOnboadingStep1,
+  submitOnboadingStep2,
+  submitOnboadingStep3,
+} from "../actions";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  onboadingStep1,
+  OnboadingStep1,
+  onboadingStep2,
+  OnboadingStep2,
+  onboadingStep3,
+  OnboadingStep3,
+} from "@/lib/validators/userValidators";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { User } from "@/lib/session";
 
-const OnboardingForm = () => {
-  const { toast } = useToast();
+interface StepProps {
+  user: User;
+  step: number;
+}
+
+const OnboardingForm = ({
+  step,
+  user,
+  userPreference,
+}: {
+  step: 1 | 2 | 3;
+  user: User;
+  userPreference: {
+    id: string;
+    userId: number;
+    lengthUnit: LengthUnitType;
+    weightUnit: WeightUnitType;
+  } | null;
+}) => {
+  const steps = [
+    <Step1 step={step} user={user} />,
+    <Step2 step={step} user={user} userPreference={userPreference} />,
+    <Step3 step={step} user={user} />,
+  ];
+
+  return <>{steps[step - 1]}</>;
+};
+
+const Step1 = ({ step, user }: StepProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<FinishSetupValidator>({
-    resolver: zodResolver(finishSetupValidator),
+  const form = useForm<OnboadingStep1>({
+    resolver: zodResolver(onboadingStep1),
     defaultValues: {
-      name: "",
-      gender: Gender.MALE.value as GenderType,
-      height: 0,
-      lengthUnit: LengthUnit.CENTIMETER.value as LengthUnitType,
-      weight: 0,
-      weightUnit: WeightUnit.KILOGRAM.value as WeightUnitType,
-      birthDay: undefined,
+      name: user.name ?? "",
+      gender: user.gender ?? (Gender.MALE.value as GenderType),
+      birthDay: user.birthDay ?? undefined,
+    },
+  });
+
+  const onSubmit = async (data: OnboadingStep1) => {
+    setIsLoading(true);
+    const res = await submitOnboadingStep1(data);
+    if (res === "ok") {
+      redirect(`/onboarding/${Number(step) + 1}`);
+    }
+    setIsLoading(false);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+        <div className="grid grid-cols-1 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="name">Name</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter your name" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="gender">Gender</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={Gender.MALE.value}>
+                      {Gender.MALE.label}
+                    </SelectItem>
+                    <SelectItem value={Gender.FEMALE.value}>
+                      {Gender.FEMALE.label}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="birthDay"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Date of birth</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      captionLayout="dropdown-buttons"
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      fromDate={new Date("1900-01-01")}
+                      toDate={
+                        new Date(
+                          new Date().setFullYear(new Date().getFullYear() - 18)
+                        )
+                      }
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" className="mt-4 w-full">
+          {isLoading ? (
+            <div className="flex gap-2 items-center">
+              <Loader2 className="animate-spin" /> Please Wait...
+            </div>
+          ) : (
+            "Continue"
+          )}
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+const Step2 = ({
+  step,
+  user,
+  userPreference,
+}: StepProps & {
+  userPreference: {
+    id: string;
+    userId: number;
+    lengthUnit: LengthUnitType;
+    weightUnit: WeightUnitType;
+  } | null;
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<OnboadingStep2>({
+    resolver: zodResolver(onboadingStep2),
+    defaultValues: {
+      height: Number(user.height) ?? 0,
+      lengthUnit:
+        userPreference?.lengthUnit ??
+        (LengthUnit.CENTIMETER.value as LengthUnitType),
+      weight: Number(user.weight) ?? 0,
+      weightUnit:
+        userPreference?.weightUnit ??
+        (WeightUnit.KILOGRAM.value as WeightUnitType),
     },
   });
 
   const heightUnit = form.watch("lengthUnit");
   const weightUnit = form.watch("weightUnit");
 
-  const [height, setHeight] = useState<number | undefined>(undefined);
+  const [height, setHeight] = useState(
+    user.height ? Math.round(user.height) : undefined
+  );
   const [feet, setFeet] = useState(
     height ? Math.floor(height / 2.54 / 12) : undefined
   );
@@ -72,7 +250,9 @@ const OnboardingForm = () => {
     height ? Math.floor(height / 2.54) % 12 : undefined
   );
 
-  const [weight, setWeight] = useState<number | undefined>(undefined);
+  const [weight, setWeight] = useState(
+    user.weight ? Math.round(user.weight) : undefined
+  );
   const [lb, setLb] = useState(
     weight ? Math.floor(weight / WeightUnit.POUND.conversion) : undefined
   );
@@ -172,59 +352,19 @@ const OnboardingForm = () => {
     setWeight(Math.floor(sanitizedValue * WeightUnit.POUND.conversion));
   };
 
-  const onSubmit = async (data: FinishSetupValidator) => {
+  const onSubmit = async (data: OnboadingStep2) => {
     setIsLoading(true);
-    const res = await finishSetup(data);
+    const res = await submitOnboadingStep2(data);
     if (res === "ok") {
-      toast({ title: "Saved Successfully!" });
+      redirect(`/onboarding/${Number(step) + 1}`);
     }
     setIsLoading(false);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="name">Name</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter your name" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="gender">Gender</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={Gender.MALE.value}>
-                      {Gender.MALE.label}
-                    </SelectItem>
-                    <SelectItem value={Gender.FEMALE.value}>
-                      {Gender.FEMALE.label}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+        <div className="grid grid-cols-1 gap-4">
           <div className="flex items-start gap-2">
             <FormField
               name="height"
@@ -347,60 +487,186 @@ const OnboardingForm = () => {
               )}
             />
           </div>
+        </div>
+        <div className="grid grid-cols-2 items-center gap-2 w-full mt-4">
+          <Link className={buttonVariants()} href={`/onboarding/${step - 1}`}>
+            Back
+          </Link>
+          <Button type="submit" className="">
+            {isLoading ? (
+              <div className="flex gap-2 items-center">
+                <Loader2 className="animate-spin" /> Please Wait...
+              </div>
+            ) : (
+              "Continue"
+            )}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+};
+
+const Step3 = ({ step, user }: StepProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<OnboadingStep3>({
+    resolver: zodResolver(onboadingStep3),
+    defaultValues: {},
+  });
+
+  const goalType = form.watch("goalType");
+
+  const onSubmit = async (data: OnboadingStep3) => {
+    setIsLoading(true);
+    const res = await submitOnboadingStep3(data);
+    if (res === "ok") {
+      redirect("/dashboard");
+    }
+    setIsLoading(false);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
+        <div className="grid grid-cols-1 gap-4">
           <FormField
             control={form.control}
-            name="birthDay"
+            name="goalType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of birth</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      captionLayout="dropdown-buttons"
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      fromDate={new Date("1900-01-01")}
-                      toDate={
-                        new Date(
-                          new Date().setFullYear(new Date().getFullYear() - 18)
-                        )
-                      }
+                <FormLabel htmlFor="goalType">Primary Goal</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select goal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={Goal.MUSCLE_GAIN.value}>
+                      {Goal.MUSCLE_GAIN.label}
+                    </SelectItem>
+                    <SelectItem value={Goal.WEIGHT_LOSS.value}>
+                      {Goal.WEIGHT_LOSS.label}
+                    </SelectItem>
+                    <SelectItem value={Goal.WEIGHT_MAINTENANCE.value}>
+                      {Goal.WEIGHT_MAINTENANCE.label}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {goalType !== "WEIGHT_MAINTENANCE" && (
+            <FormField
+              name="goalWeight"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel htmlFor="goalWeight">
+                    Target Weight (Optional)
+                  </FormLabel>
+                  <input {...field} hidden readOnly />
+                  <div className="flex gap-2 flex-grow">
+                    <Input
+                      id="goalWeight"
+                      placeholder=""
+                      className="flex-grow"
                     />
-                  </PopoverContent>
-                </Popover>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+          {goalType !== "WEIGHT_MAINTENANCE" && (
+            <FormField
+              control={form.control}
+              name="goalRate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="goalRate">Goal Rate</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select goal rate" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={GoalRate.SLOW.value}>
+                        {goalType === "MUSCLE_GAIN"
+                          ? GoalRate.SLOW.weightGainPerWeek.description
+                          : GoalRate.SLOW.weightLossPerWeek.description}
+                      </SelectItem>
+                      <SelectItem value={GoalRate.MODERATE.value}>
+                        {goalType === "MUSCLE_GAIN"
+                          ? GoalRate.MODERATE.weightGainPerWeek.description
+                          : GoalRate.MODERATE.weightLossPerWeek.description}
+                      </SelectItem>
+                      <SelectItem value={GoalRate.AGGRESSIVE.value}>
+                        {goalType === "MUSCLE_GAIN"
+                          ? GoalRate.AGGRESSIVE.weightGainPerWeek.description
+                          : GoalRate.AGGRESSIVE.weightLossPerWeek.description}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+          <FormField
+            control={form.control}
+            name="activityLevel"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel htmlFor="activityLevel">Activity Level</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select activity level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ActivityLevel.SEDENTARY.value}>
+                      {ActivityLevel.SEDENTARY.description}
+                    </SelectItem>
+                    <SelectItem value={ActivityLevel.LIGHTLY_ACTIVE.value}>
+                      {ActivityLevel.LIGHTLY_ACTIVE.description}
+                    </SelectItem>
+                    <SelectItem value={ActivityLevel.MODERATELY_ACTIVE.value}>
+                      {ActivityLevel.MODERATELY_ACTIVE.description}
+                    </SelectItem>
+                    <SelectItem value={ActivityLevel.VERY_ACTIVE.value}>
+                      {ActivityLevel.VERY_ACTIVE.description}
+                    </SelectItem>
+                    <SelectItem value={ActivityLevel.EXTREMELY_ACTIVE.value}>
+                      {ActivityLevel.EXTREMELY_ACTIVE.description}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <Button type="submit" className="mt-4 w-full">
-          {isLoading ? (
-            <div className="flex gap-2 items-center">
-              <Loader2 className="animate-spin" /> Please Wait...
-            </div>
-          ) : (
-            "Continue"
-          )}
-        </Button>
+        <div className="grid grid-cols-2 items-center gap-2 w-full mt-4">
+          <Link className={buttonVariants()} href={`/onboarding/${step - 1}`}>
+            Back
+          </Link>
+          <Button type="submit" className="">
+            {isLoading ? (
+              <div className="flex gap-2 items-center">
+                <Loader2 className="animate-spin" /> Please Wait...
+              </div>
+            ) : (
+              "Continue"
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );
