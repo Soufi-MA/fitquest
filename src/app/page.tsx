@@ -1,8 +1,8 @@
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "./actions";
 import Link from "next/link";
 
 export default async function Home() {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 min-h-screen mx-auto">
