@@ -3,8 +3,15 @@ import React from "react";
 import OnboardingForm from "./_components/OnboardingForm";
 import OnboardingNav from "./_components/OnboardingNav";
 import { ModeToggle } from "@/components/toggle";
+import { getCurrentUser, getUserOnboardingStatus } from "@/app/actions";
+import { redirect } from "next/navigation";
 
-const page = () => {
+const page = async () => {
+  const { user } = await getCurrentUser();
+  if (!user) redirect("/sign-in");
+  const onBoardingStatus = await getUserOnboardingStatus(user.id);
+  if (onBoardingStatus === "COMPLETED") redirect("/dashboard");
+
   return (
     <div className="relative flex h-[90vh] flex-col items-center">
       <OnboardingNav />
