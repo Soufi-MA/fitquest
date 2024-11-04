@@ -34,6 +34,7 @@ export const activityLevelEnum = pgEnum("activity_level", [
 ]);
 export const onboardingStatusEnum = pgEnum("onboarding_status", [
   "PENDING",
+  "METRICS_INCOMPLETE",
   "GOAL_INCOMPLETE",
   "COMPLETED",
 ]);
