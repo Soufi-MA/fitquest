@@ -80,7 +80,7 @@ export const goalTable = createTable(
   (table) => ({
     uniqueInProgressGoal: uniqueIndex("unique_in_progress_goal")
       .on(table.userId, table.status)
-      .where(sql`${table.status} = 'InProgress'`),
+      .where(sql`${table.status} = 'IN_PROGRESS'`),
   })
 );
 
