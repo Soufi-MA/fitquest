@@ -228,7 +228,7 @@ export const Plan: Record<PlanType, { label: string; value: string }> = {
   FREE: { label: "Free", value: "FREE" },
 };
 
-export const GoalType: Record<GoalType, { label: string; value: string }> = {
+export const Goal: Record<GoalType, { label: string; value: string }> = {
   WEIGHT_LOSS: { label: "Weight Loss", value: "WEIGHT_LOSS" },
   MUSCLE_GAIN: { label: "Muscle Gain", value: "MUSCLE_GAIN" },
   WEIGHT_MAINTENANCE: {
