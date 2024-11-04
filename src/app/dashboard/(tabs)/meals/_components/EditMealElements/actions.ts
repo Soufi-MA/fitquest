@@ -2,7 +2,7 @@
 
 import { db } from "@/db/connection";
 import { mealFoodTable, mealTable } from "@/db/schema/food";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/app/actions";
 import { and, eq, ExtractTablesWithRelations } from "drizzle-orm";
 import { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import { PgTransaction } from "drizzle-orm/pg-core";
@@ -90,7 +90,7 @@ function calculateNewTotalCalories({
 }
 
 export const addFoodToMeal = async (data: AddFoodInput) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
 
   if (!user) return { authorized: false };
 
@@ -143,7 +143,7 @@ export const addFoodToMeal = async (data: AddFoodInput) => {
 };
 
 export const editMealName = async (formData: FormData) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return { unauthorized: true };
 
   const mealId = formData.get("id") as string;
@@ -166,7 +166,7 @@ export const editMealName = async (formData: FormData) => {
 };
 
 export const editMealTime = async (formData: FormData) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return { unauthorized: true };
 
   const mealId = formData.get("id") as string;
@@ -189,7 +189,7 @@ export const editMealTime = async (formData: FormData) => {
 };
 
 export const deleteMeal = async (formData: FormData) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return { unauthorized: true };
 
   const mealId = formData.get("id") as string;
@@ -262,7 +262,7 @@ const getNewTotalCalories = async (
 };
 
 export const editFoodEntry = async (formData: FormData) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return { unauthorized: true };
 
   const quantity = formData.get("quantity") as string;
@@ -313,7 +313,7 @@ export const editFoodEntry = async (formData: FormData) => {
 };
 
 export const deleteFoodEntry = async (formData: FormData) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return { unauthorized: true };
 
   const foodEntryId = formData.get("id") as string;

@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import { DASHBOARD_TABS, PROFILE_TABS } from "../config";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
-import { logout } from "@/lib/session";
+import { logout } from "@/app/actions";
 import { Button } from "./ui/button";
 
 const useMediaQuery = (width: number) => {

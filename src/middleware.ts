@@ -1,4 +1,3 @@
-import { verifyRequestOrigin } from "lucia";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -7,13 +6,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     return NextResponse.next();
   }
 
-  const originHeader = request.headers.get("Origin");
-  const hostHeader = request.headers.get("Host");
-  if (
-    !originHeader ||
-    !hostHeader ||
-    !verifyRequestOrigin(originHeader, [hostHeader])
-  ) {
+  const origin = request.headers.get("Origin");
+  if (origin === null || origin !== process.env.NEXT_PUBLIC_SERVER_URL) {
     return new NextResponse(null, {
       status: 403,
     });

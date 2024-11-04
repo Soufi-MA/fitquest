@@ -1,6 +1,6 @@
 "use server";
 
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/app/actions";
 import { FinishSetupValidator } from "@/lib/validators/userValidators";
 
 export const finishSetup = async (data: FinishSetupValidator) => {

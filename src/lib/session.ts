@@ -1,67 +1,122 @@
 "use server";
 
-import { lucia, validateRequest } from "./auth";
+import {
+  encodeBase32LowerCaseNoPadding,
+  encodeHexLowerCase,
+} from "@oslojs/encoding";
+import { sha256 } from "@oslojs/crypto/sha2";
+import { db } from "@/db/connection";
+import {
+  ActivityLevelType,
+  GenderType,
+  sessionTable,
+  userTable,
+} from "@/db/schema/user";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { cache } from "react";
-import { generateId, User } from "lucia";
 
-export const getCurrentUser = cache(async () => {
-  const nextCookies = await cookies();
-  const sessionId = nextCookies.get(lucia.sessionCookieName)?.value ?? null;
-  if (!sessionId) return null;
-  const { user, session } = await lucia.validateSession(sessionId);
-  try {
-    if (session && session.fresh) {
-      const sessionCookie = lucia.createSessionCookie(session.id);
-      nextCookies.set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes
-      );
-    }
-    if (!session) {
-      const sessionCookie = lucia.createBlankSessionCookie();
-      nextCookies.set(
-        sessionCookie.name,
-        sessionCookie.value,
-        sessionCookie.attributes
-      );
-    }
-  } catch {
-    // Next.js throws error when attempting to set cookies when rendering page
+export async function generateSessionToken(): Promise<string> {
+  const bytes = new Uint8Array(20);
+  crypto.getRandomValues(bytes);
+  const token = encodeBase32LowerCaseNoPadding(bytes);
+  return token;
+}
+
+export async function createSession(
+  token: string,
+  userId: number
+): Promise<Session> {
+  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+  const session: Session = {
+    id: sessionId,
+    userId,
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+  };
+  await db.insert(sessionTable).values({
+    id: session.id,
+    userId: session.userId,
+    expiresAt: session.expiresAt,
+  });
+  return session;
+}
+
+export async function setSessionTokenCookie(
+  token: string,
+  expiresAt: Date
+): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set("session", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    expires: expiresAt,
+    path: "/",
+  });
+}
+
+export async function validateSessionToken(
+  token: string
+): Promise<SessionValidationResult> {
+  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+  const [dbSession] = await db
+    .select()
+    .from(sessionTable)
+    .where(eq(sessionTable.id, sessionId));
+  const [dbUser] = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.id, dbSession.userId));
+
+  if (dbSession === null || dbUser === null) {
+    return { session: null, user: null };
   }
-  return user;
-});
 
-export async function setSession(id: User["id"]) {
-  const nextCookies = await cookies();
+  const session: Session = {
+    id: dbSession.id,
+    userId: dbSession.userId,
+    expiresAt: dbSession.expiresAt,
+  };
+  const user: User = {
+    ...dbUser,
+  };
 
-  const session = await lucia.createSession(id, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
-  nextCookies.set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
-  nextCookies.delete("name");
-  nextCookies.delete("guestSessionId");
+  if (Date.now() >= session.expiresAt.getTime()) {
+    await db.delete(sessionTable).where(eq(sessionTable.id, session.id));
+    return { session: null, user: null };
+  }
+
+  if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
+    session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+    await db.update(sessionTable).set({
+      id: session.id,
+      expiresAt: session.expiresAt,
+    });
+  }
+  return { session, user };
 }
 
-export async function logout() {
-  "use server";
-  const nextCookies = await cookies();
-
-  const { session } = await validateRequest();
-  if (!session) return;
-
-  await lucia.invalidateSession(session.id);
-
-  const sessionCookie = lucia.createBlankSessionCookie();
-  nextCookies.set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  );
-  return redirect("/sign-in");
+export async function invalidateSession(sessionId: string): Promise<void> {
+  await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
 }
+
+export type SessionValidationResult =
+  | { session: Session; user: User }
+  | { session: null; user: null };
+
+export interface Session {
+  id: string;
+  userId: number;
+  expiresAt: Date;
+}
+
+export type User = {
+  id: number;
+  name: string | null;
+  gender: GenderType | null;
+  profilePicture: string | null;
+  birthDay: Date | null;
+  height: number | null;
+  weight: number | null;
+  activityLevel: ActivityLevelType | null;
+  plan: string | null;
+};

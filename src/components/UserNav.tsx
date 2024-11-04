@@ -13,11 +13,11 @@ import { PROFILE_TABS } from "@/config";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { getCurrentUser, logout } from "@/lib/session";
+import { getCurrentUser, logout } from "@/app/actions";
 import { PopoverClose } from "@radix-ui/react-popover";
 
 const UserNav = async () => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return;
 
   return (

@@ -2,9 +2,12 @@
 
 import { db } from "@/db/connection";
 import { userTable } from "@/db/schema/user";
-import { setSession } from "@/lib/session";
+import {
+  createSession,
+  generateSessionToken,
+  setSessionTokenCookie,
+} from "@/lib/session";
 import { eq } from "drizzle-orm";
-import { generateId } from "lucia";
 import { redirect } from "next/navigation";
 
 export const dummySignin = async () => {
@@ -14,23 +17,25 @@ export const dummySignin = async () => {
     .where(eq(userTable.email, "JohnDoe@example.com"));
 
   if (!dummyUser) {
-    const id = generateId(15);
-    await db.insert(userTable).values({
-      id,
-      name: "John Doe",
-      email: "JohnDoe@example.com",
-      emailVerified: new Date(),
-      birthDay: new Date("2000-01-01"),
-      gender: "MALE",
-      height: 180,
-      weight: 80,
-      plan: "FREE",
-    });
-    setSession(id);
+    const [user] = await db
+      .insert(userTable)
+      .values({
+        name: "John Doe",
+        email: "JohnDoe@example.com",
+      })
+      .returning({ userId: userTable.id });
+
+    const token = await generateSessionToken();
+    const session = await createSession(token, user.userId);
+
+    await setSessionTokenCookie(token, session.expiresAt);
+
     redirect("/dashboard");
   }
 
-  setSession(dummyUser.id);
+  const token = await generateSessionToken();
+  const session = await createSession(token, dummyUser.id);
+  await setSessionTokenCookie(token, session.expiresAt);
 
   redirect("/dashboard");
 };

@@ -17,7 +17,7 @@ import {
   userRecentFoodsTable,
   userTable,
 } from "@/db/schema/user";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/app/actions";
 import { calculateAge } from "@/lib/utils";
 import { and, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -117,7 +117,7 @@ export const fetchFood = async (id: number) => {
 };
 
 export async function toggleFavoriteFood(foodId: number) {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return { unauthorized: true };
 
   const existing = await db
@@ -151,7 +151,7 @@ export async function toggleFavoriteFood(foodId: number) {
 }
 
 export async function fetchFavoriteFoods() {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return undefined;
 
   const userFavoriteFoodIds = await db
@@ -168,7 +168,7 @@ export async function fetchFavoriteFoods() {
 }
 
 export async function fetchRecentFoods() {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return undefined;
 
   const userRecentFoodIds = await db
@@ -185,7 +185,7 @@ export async function fetchRecentFoods() {
 }
 
 export async function addToRecentFoods(foodId: number) {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return { unauthorized: true };
 
   await db
@@ -304,7 +304,7 @@ function calculateTotalNutrients(data: LogMealInput) {
 }
 
 export const logMeal = async (data: LogMealInput) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
 
   if (!user) return { authorized: false };
 
@@ -384,7 +384,7 @@ export const logMeal = async (data: LogMealInput) => {
 };
 
 export const fetchMealDetails = async (date: Date) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return null;
 
   const startOfDay = new Date(date);
@@ -440,13 +440,15 @@ export const fetchMealDetails = async (date: Date) => {
 };
 
 export const fetchUserGoal = async () => {
-  const user = await getCurrentUser();
-  if (!user) return null;
-
-  const [currentUser] = await db
-    .select()
-    .from(userTable)
-    .where(eq(userTable.id, user.id));
+  const { user } = await getCurrentUser();
+  if (
+    !user ||
+    !user.birthDay ||
+    !user.weight ||
+    !user.height ||
+    !user.activityLevel
+  )
+    return null;
 
   const [userGoal] = await db
     .select()
@@ -455,21 +457,19 @@ export const fetchUserGoal = async () => {
       and(eq(goalTable.userId, user.id), eq(goalTable.status, "IN_PROGRESS"))
     );
 
-  if (!currentUser.weight) return null;
+  if (!user.weight) return null;
 
   // Calculate BMR using Mifflin-St Jeor Equation
-  const age = calculateAge(currentUser.birthDay);
+  const age = calculateAge(user.birthDay);
 
   const bmr =
-    10 * currentUser.weight +
-    6.25 * currentUser.height -
+    10 * user.weight +
+    6.25 * user.height -
     5 * age +
-    (currentUser.gender === "MALE" ? 5 : -161);
+    (user.gender === "MALE" ? 5 : -161);
 
   // Calculate TDEE using activity level multiplier
-  const tdee = Math.round(
-    bmr * ActivityLevel[currentUser.activityLevel].multiplier
-  );
+  const tdee = Math.round(bmr * ActivityLevel[user.activityLevel].multiplier);
 
   let dailyCalories: number;
   let macroRatios: {
@@ -555,8 +555,7 @@ export const fetchUserGoal = async () => {
           estimatedDuration:
             weeklyChange.kg > 0
               ? Math.round(
-                  Math.abs(currentUser.weight - userGoal.goalWeight!) /
-                    weeklyChange.kg
+                  Math.abs(user.weight - userGoal.goalWeight!) / weeklyChange.kg
                 )
               : null,
         }
@@ -565,7 +564,7 @@ export const fetchUserGoal = async () => {
 };
 
 export const fetchFoodEntries = async (mealId: string) => {
-  const user = await getCurrentUser();
+  const { user } = await getCurrentUser();
   if (!user) return [];
 
   const [meal] = await db
