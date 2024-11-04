@@ -62,12 +62,17 @@ export async function validateSessionToken(
     .select()
     .from(sessionTable)
     .where(eq(sessionTable.id, sessionId));
+
+  if (!dbSession) {
+    return { session: null, user: null };
+  }
+
   const [dbUser] = await db
     .select()
     .from(userTable)
     .where(eq(userTable.id, dbSession.userId));
 
-  if (dbSession === null || dbUser === null) {
+  if (!dbUser) {
     return { session: null, user: null };
   }
 
