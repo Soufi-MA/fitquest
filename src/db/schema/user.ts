@@ -45,6 +45,11 @@ export const activityLevelEnum = pgEnum("activity_level", [
   "VERY_ACTIVE",
   "EXTREMELY_ACTIVE",
 ]);
+export const onboardingStatusEnum = pgEnum("onboarding_status", [
+  "PENDING",
+  "GOAL_INCOMPLETE",
+  "COMPLETED",
+]);
 
 const createTable = pgTableCreator((name) => `fitquest_${name}`);
 
@@ -71,6 +76,9 @@ export const userTable = createTable("user", {
     .default("MODERATELY_ACTIVE")
     .notNull(),
   plan: planEnum("plan").notNull().default("FREE"),
+  onboardingStatus: onboardingStatusEnum("onboading_status")
+    .default("PENDING")
+    .notNull(),
 });
 
 export const goalTable = createTable(
