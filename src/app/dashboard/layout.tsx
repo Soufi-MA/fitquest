@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 const DashboardLayout = async ({ children }: { children: ReactNode }) => {
   const { user } = await getCurrentUser();
   if (!user) redirect("/sign-in");
-  const onBoardingStatus = await getUserOnboardingStatus(user.id);
+  const onBoardingStatus = await getUserOnboardingStatus();
   if (onBoardingStatus !== "COMPLETED") redirect("/onboarding");
 
   return (
