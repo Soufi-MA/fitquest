@@ -1,5 +1,5 @@
 "use client";
-import { User } from "lucia";
+import { User } from "@/lib/session";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,7 +73,7 @@ const AccountDetailsForm = ({
   user: User;
   userPreference: {
     id: string;
-    userId: string;
+    userId: number;
     lengthUnit: LengthUnitType;
     weightUnit: WeightUnitType;
   } | null;
@@ -84,13 +84,13 @@ const AccountDetailsForm = ({
   const form = useForm<UpdateUserValidator>({
     resolver: zodResolver(updateUserValidator),
     defaultValues: {
-      name: user.name,
-      gender: user.gender,
+      name: user.name ?? undefined,
+      gender: user.gender ?? undefined,
       height: Number(user.height) ?? 0,
       heightUnit: userPreference?.lengthUnit,
       weight: Number(user.weight) ?? 0,
       weightUnit: userPreference?.weightUnit,
-      birthDay: user.birthDay,
+      birthDay: user.birthDay ?? undefined,
     },
   });
 
