@@ -2,11 +2,16 @@ import Image from "next/image";
 import React from "react";
 import OnboardingForm from "./_components/OnboardingForm";
 import OnboardingNav from "./_components/OnboardingNav";
+import { ModeToggle } from "@/components/toggle";
 
 const page = () => {
   return (
     <div className="relative flex h-[90vh] flex-col items-center">
       <OnboardingNav />
+      <div className="flex justify-end w-full py-4 px-2">
+        <ModeToggle />
+      </div>
+
       <div className="my-auto box-border flex w-[90vw] max-w-[600px] flex-col items-center justify-center rounded-xl bg-muted p-4 shadow-lg">
         <div className="flex flex-col items-center justify-center py-4">
           <Image src={"/logo.png"} alt="" height={48} width={48} />
