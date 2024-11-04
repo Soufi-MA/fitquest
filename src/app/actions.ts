@@ -2,7 +2,7 @@
 
 import { db } from "@/db/connection";
 import { userTable } from "@/db/schema/user";
-import { invalidateSession, User, validateSessionToken } from "@/lib/session";
+import { invalidateSession, validateSessionToken } from "@/lib/session";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -31,11 +31,14 @@ export const logout = async () => {
   redirect("/sign-in");
 };
 
-export const getUserOnboardingStatus = async (userId: User["id"]) => {
-  const [user] = await db
+export const getUserOnboardingStatus = async () => {
+  const { user } = await getCurrentUser();
+  if (!user) redirect("/sign-in");
+
+  const [foundUser] = await db
     .select({ onboardingStatus: userTable.onboardingStatus })
     .from(userTable)
-    .where(eq(userTable.id, userId));
+    .where(eq(userTable.id, user.id));
 
-  return user.onboardingStatus;
+  return foundUser.onboardingStatus;
 };
