@@ -87,7 +87,7 @@ export const foodPortionTable = createTable("food_portion", {
 
 export const mealTable = createTable("meal", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id")
+  userId: integer("user_id")
     .notNull()
     .references(() => userTable.id),
   mealType: text("meal_type").notNull(),

@@ -6,86 +6,60 @@ import {
   date,
   uuid,
   decimal,
-  pgEnum,
   primaryKey,
   uniqueIndex,
   integer,
 } from "drizzle-orm/pg-core";
 import { foodTable } from "./food";
-
-export const genderEnum = pgEnum("gender", ["MALE", "FEMALE"]);
-
-export const lengthUnitEnum = pgEnum("length_unit", ["CENTIMETER", "INCH"]);
-
-export const weightUnitEnum = pgEnum("weight_unit", ["KILOGRAM", "POUND"]);
-
-export const planEnum = pgEnum("plan", ["PREMIUM", "FREE"]);
-
-export const goalTypeEnum = pgEnum("goal_type", [
-  "WEIGHT_LOSS",
-  "MUSCLE_GAIN",
-  "WEIGHT_MAINTENANCE",
-]);
-
-export const goalStatusEnum = pgEnum("goal_status", [
-  "IN_PROGRESS",
-  "COMPLETED",
-  "ABANDONED",
-]);
-
-export const goalRateEnum = pgEnum("goal_rate", [
-  "SLOW",
-  "MODERATE",
-  "AGGRESSIVE",
-]);
-export const activityLevelEnum = pgEnum("activity_level", [
-  "SEDENTARY",
-  "LIGHTLY_ACTIVE",
-  "MODERATELY_ACTIVE",
-  "VERY_ACTIVE",
-  "EXTREMELY_ACTIVE",
-]);
-export const onboardingStatusEnum = pgEnum("onboarding_status", [
-  "PENDING",
-  "GOAL_INCOMPLETE",
-  "COMPLETED",
-]);
+import {
+  activityLevelEnum,
+  genderEnum,
+  goalRateEnum,
+  goalStatusEnum,
+  goalTypeEnum,
+  lengthUnitEnum,
+  onboardingStatusEnum,
+  planEnum,
+  weightUnitEnum,
+} from "./enums";
 
 const createTable = pgTableCreator((name) => `fitquest_${name}`);
 
 export const userTable = createTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
+  id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
+  name: text("name"),
   email: text("email").unique(),
-  emailVerified: timestamp("email_verified", {
-    withTimezone: true,
-    mode: "date",
-  }),
   profilePicture: text("profile_picture"),
-  gender: genderEnum("gender").notNull(),
+  gender: genderEnum("gender"),
   birthDay: date("birth_day", {
     mode: "date",
-  }).notNull(),
-  height: decimal("height", { precision: 10, scale: 2 })
-    .$type<number>()
-    .notNull(),
-  weight: decimal("weight", { precision: 10, scale: 2 })
-    .$type<number>()
-    .notNull(),
-  activityLevel: activityLevelEnum("activity_level")
-    .default("MODERATELY_ACTIVE")
-    .notNull(),
+  }),
+  height: decimal("height", { precision: 10, scale: 2 }).$type<number>(),
+  weight: decimal("weight", { precision: 10, scale: 2 }).$type<number>(),
+  activityLevel:
+    activityLevelEnum("activity_level").default("MODERATELY_ACTIVE"),
   plan: planEnum("plan").notNull().default("FREE"),
   onboardingStatus: onboardingStatusEnum("onboading_status")
     .default("PENDING")
     .notNull(),
 });
 
+export const sessionTable = createTable("session", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
+});
+
 export const goalTable = createTable(
   "goal",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id")
+    userId: integer("user_id")
       .references(() => userTable.id)
       .notNull(),
     goalType: goalTypeEnum("goal_type").default("WEIGHT_MAINTENANCE").notNull(),
@@ -115,7 +89,7 @@ export const accountTable = createTable(
   {
     providerId: text("provider_id").notNull(),
     providerUserId: text("provider_user_id").notNull(),
-    userId: text("user_id")
+    userId: integer("user_id")
       .notNull()
       .references(() => userTable.id),
   },
@@ -126,31 +100,9 @@ export const accountTable = createTable(
   }
 );
 
-export const sessionTable = createTable("session", {
-  id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => userTable.id),
-  expiresAt: timestamp("expires_at", {
-    withTimezone: true,
-    mode: "date",
-  }).notNull(),
-});
-
-export const magicLinkTable = createTable("magicLink", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").unique().notNull(),
-  token: text("token").notNull(),
-  expiresAt: timestamp("expires_at", {
-    withTimezone: true,
-    mode: "date",
-  }).notNull(),
-});
-
 export const preferenceTable = createTable("preference", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id")
+  userId: integer("user_id")
     .references(() => userTable.id)
     .notNull()
     .unique(),
@@ -162,7 +114,7 @@ export const userFavoriteFoodsTable = createTable(
   "user_favorite_foods",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id")
+    userId: integer("user_id")
       .references(() => userTable.id)
       .notNull(),
     foodId: integer("food_id")
@@ -185,7 +137,7 @@ export const userRecentFoodsTable = createTable(
   "user_recent_foods",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id")
+    userId: integer("user_id")
       .references(() => userTable.id)
       .notNull(),
     foodId: integer("food_id")
