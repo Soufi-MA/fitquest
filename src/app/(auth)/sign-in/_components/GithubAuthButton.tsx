@@ -4,13 +4,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { useSearchParams } from "next/navigation";
 
 export default function AuthWithGitHub() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>();
-  const searchParams = useSearchParams();
-  const origin = searchParams.get("origin");
 
   const handleAuth = () => {
     setLoading(true);
@@ -36,8 +33,6 @@ export default function AuthWithGitHub() {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-
       const { status, message } = event.data;
 
       if (status === 200) {

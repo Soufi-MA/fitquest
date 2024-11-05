@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export default function AuthWithGoogle() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>();
-  const searchParams = useSearchParams();
-  const origin = searchParams.get("origin");
 
   const handleAuth = () => {
     setLoading(true);
@@ -54,7 +51,12 @@ export default function AuthWithGoogle() {
   }, [setError, origin]);
 
   return (
-    <>
+    <div className="flex flex-col gap-2 w-full">
+      {error && (
+        <p className="bg-destructive text-destructive-foreground px-4 py-2 rounded-md space-y-2 text-sm">
+          {error}
+        </p>
+      )}
       <Button className="w-full" onClick={handleAuth} disabled={loading}>
         {loading ? (
           <Loader2 className="animate-spin mr-2 h-4 w-4" />
@@ -63,7 +65,7 @@ export default function AuthWithGoogle() {
         )}
         Continue with google
       </Button>
-    </>
+    </div>
   );
 }
 
