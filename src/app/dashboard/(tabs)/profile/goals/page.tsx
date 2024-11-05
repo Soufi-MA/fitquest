@@ -1,7 +1,7 @@
 import React from "react";
 
 const page = () => {
-  return <div>Friends page coming soon...</div>;
+  return <div>Goals tab coming soon...</div>;
 };
 
 export default page;
