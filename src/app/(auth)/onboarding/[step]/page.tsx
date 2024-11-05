@@ -30,7 +30,7 @@ const page = async ({ params }: PageProps) => {
   }
 
   return (
-    <div className="my-auto box-border flex w-[90vw] max-w-[600px] flex-col gap-4 items-center justify-center rounded-xl bg-muted p-4 shadow-lg">
+    <div className="relative bg-card border rounded-lg shadow-lg p-6 w-full max-w-lg space-y-6 animate-in fade-in-50 slide-in-from-bottom-10 my-auto">
       <Progress
         value={step == 1 ? 33 : step == 2 ? 66 : 100}
         className="w-full"
