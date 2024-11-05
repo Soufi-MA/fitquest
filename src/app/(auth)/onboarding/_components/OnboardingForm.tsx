@@ -79,7 +79,7 @@ const OnboardingForm = ({
   const steps = [
     <Step1 step={step} user={user} />,
     <Step2 step={step} user={user} userPreference={userPreference} />,
-    <Step3 step={step} user={user} />,
+    <Step3 step={step} user={user} userPreference={userPreference} />,
   ];
 
   return <>{steps[step - 1]}</>;
@@ -507,7 +507,18 @@ const Step2 = ({
   );
 };
 
-const Step3 = ({ step, user }: StepProps) => {
+const Step3 = ({
+  step,
+  user,
+  userPreference,
+}: StepProps & {
+  userPreference: {
+    id: string;
+    userId: number;
+    lengthUnit: LengthUnitType;
+    weightUnit: WeightUnitType;
+  } | null;
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<OnboadingStep3>({
@@ -565,7 +576,16 @@ const Step3 = ({ step, user }: StepProps) => {
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel htmlFor="goalWeight">
-                    Target Weight (Optional)
+                    Target Weight
+                    {userPreference?.weightUnit ? (
+                      <span className="text-xs">
+                        {" "}
+                        {WeightUnit[userPreference.weightUnit]?.label}
+                      </span>
+                    ) : (
+                      ""
+                    )}{" "}
+                    (Optional)
                   </FormLabel>
                   <input {...field} hidden readOnly />
                   <div className="flex gap-2 flex-grow">
