@@ -48,7 +48,7 @@ export const sessionTable = createTable("session", {
   id: text("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
-    .references(() => userTable.id),
+    .references(() => userTable.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at", {
     withTimezone: true,
     mode: "date",
@@ -60,7 +60,7 @@ export const goalTable = createTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: integer("user_id")
-      .references(() => userTable.id)
+      .references(() => userTable.id, { onDelete: "cascade" })
       .notNull(),
     goalType: goalTypeEnum("goal_type").default("WEIGHT_MAINTENANCE").notNull(),
     goalRate: goalRateEnum("goal_rate").default("MODERATE").notNull(),
@@ -91,7 +91,7 @@ export const accountTable = createTable(
     providerUserId: text("provider_user_id").notNull(),
     userId: integer("user_id")
       .notNull()
-      .references(() => userTable.id),
+      .references(() => userTable.id, { onDelete: "cascade" }),
   },
   (table) => {
     return {
@@ -103,7 +103,7 @@ export const accountTable = createTable(
 export const preferenceTable = createTable("preference", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: integer("user_id")
-    .references(() => userTable.id)
+    .references(() => userTable.id, { onDelete: "cascade" })
     .notNull()
     .unique(),
   lengthUnit: lengthUnitEnum("length_unit").notNull(),
@@ -115,7 +115,7 @@ export const userFavoriteFoodsTable = createTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: integer("user_id")
-      .references(() => userTable.id)
+      .references(() => userTable.id, { onDelete: "cascade" })
       .notNull(),
     foodId: integer("food_id")
       .references(() => foodTable.id)
@@ -138,7 +138,7 @@ export const userRecentFoodsTable = createTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: integer("user_id")
-      .references(() => userTable.id)
+      .references(() => userTable.id, { onDelete: "cascade" })
       .notNull(),
     foodId: integer("food_id")
       .references(() => foodTable.id)
