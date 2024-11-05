@@ -3,6 +3,8 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { dummySignin } from "./actions";
 import { Button } from "@/components/ui/button";
+import AuthWithGoogle from "./_components/GoogleAuthButton";
+import AuthWithGitHub from "./_components/GithubAuthButton";
 
 const page = async () => {
   return (
@@ -27,10 +29,14 @@ const page = async () => {
                   <div className="pb-5 text-sm">
                     Choose provider to sign-in.
                   </div>
-                  <div className="flex items-start justify-center gap-3 self-stretch p-0">
-                    <form action={dummySignin}>
-                      <Button type="submit">Test Sign In</Button>
+                  <div className="flex flex-col items-start justify-center gap-3 self-stretch p-0">
+                    <form action={dummySignin} className="w-full">
+                      <Button type="submit" className="w-full">
+                        Test Sign In
+                      </Button>
                     </form>
+                    <AuthWithGoogle />
+                    <AuthWithGitHub />
                   </div>
                 </div>
               </div>
