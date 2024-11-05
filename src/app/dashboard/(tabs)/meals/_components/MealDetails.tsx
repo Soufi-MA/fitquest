@@ -169,7 +169,7 @@ const MealDetails = ({
                   />
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="max-sm:gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -241,7 +241,7 @@ const MealDetails = ({
                 </div>
               </div>
 
-              <DialogFooter>
+              <DialogFooter className="max-sm:gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -289,8 +289,12 @@ const MealDetails = ({
                 hidden
                 readOnly
               />
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>
+              <DialogFooter className="max-sm:gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button
@@ -484,7 +488,7 @@ const MealDetails = ({
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
-              <DialogFooter>
+              <DialogFooter className="max-sm:gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -529,8 +533,12 @@ const MealDetails = ({
             </DialogDescription>
             <Form action={(e) => handleDeleteEntry(e)}>
               <input value={food.id} id="id" name="id" hidden readOnly />
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>
+              <DialogFooter className="max-sm:gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button
