@@ -140,7 +140,7 @@ const AddFoodToMeal = ({
       >
         <Button
           variant="ghost"
-          className="flex-grow text-left justify-start font-normal"
+          className="flex-grow text-left justify-start font-normal truncate"
           onClick={() => {
             select(food.id);
           }}
