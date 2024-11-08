@@ -10,11 +10,7 @@ import {
 import SelectMealType from "./AddMealElements/SelectMealType";
 import AddFoodToMeal from "./AddMealElements/AddFoodToMeal";
 import MealSummary from "./AddMealElements/MealSummary";
-import {
-  DialogDrawer,
-  DialogDrawerContent,
-  DialogDrawerTrigger,
-} from "@/components/ui/dialog-drawer";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDateFromSearchParams } from "@/lib/utils";
@@ -116,7 +112,7 @@ const AddMeal = ({
 
   return (
     <>
-      <DialogDrawer
+      <Dialog
         open={open}
         onOpenChange={() => {
           setStep(1);
@@ -124,16 +120,16 @@ const AddMeal = ({
           setOpen(!open);
         }}
       >
-        <DialogDrawerTrigger asChild>
+        <DialogTrigger asChild>
           <Button size={"sm"}>Add Meal</Button>
-        </DialogDrawerTrigger>
-        <DialogDrawerContent
+        </DialogTrigger>
+        <DialogContent
           id="dialogContainer"
-          className="h-full max-h-[80vh] max-w-4xl overflow-hidden flex flex-col items-center justify-between"
+          className="h-full md:max-h-[80vh] max-w-4xl overflow-hidden flex flex-col items-center justify-between"
         >
           {render()}
-        </DialogDrawerContent>
-      </DialogDrawer>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
