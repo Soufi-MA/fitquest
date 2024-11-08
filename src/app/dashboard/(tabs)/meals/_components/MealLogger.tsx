@@ -1,10 +1,9 @@
-import React, { cache } from "react";
+import React from "react";
 import { Separator } from "@/components/ui/separator";
 
 import MealLoggerHeader from "./MealLoggerHeader";
 import MealLoggerSummary from "./MealLoggerSummary";
 import MealLoggerDetails from "./MealLoggerDetails";
-import { getDateFromSearchParams } from "@/lib/utils";
 import {
   fetchFavoriteFoods,
   fetchInitialFoodSuggestions,
@@ -13,22 +12,19 @@ import {
   fetchUserGoal,
 } from "../actions";
 
-const MealLogger = async ({ date }: { date: string | undefined }) => {
-  const today = getDateFromSearchParams(date);
-  const getChchedMealDetails = cache(fetchMealDetails);
-  const mealDetailsPromise = getChchedMealDetails(today);
-  const getCachedUserGoal = cache(fetchUserGoal);
-  const userGoalPromise = getCachedUserGoal();
-
-  const getCachedInitialFoodSuggestions = cache(fetchInitialFoodSuggestions);
-  const initialFoodSuggestionspromise = getCachedInitialFoodSuggestions();
-
-  const getCachedFavoriteFoods = cache(fetchFavoriteFoods);
-  const favoriteFoodspromise = getCachedFavoriteFoods();
-
-  const getCachedRecentFoods = cache(fetchRecentFoods);
-  const recentFoodspromise = getCachedRecentFoods();
-
+const MealLogger = async ({
+  mealDetailsPromise,
+  userGoalPromise,
+  initialFoodSuggestionspromise,
+  favoriteFoodspromise,
+  recentFoodspromise,
+}: {
+  mealDetailsPromise: ReturnType<typeof fetchMealDetails>;
+  userGoalPromise: ReturnType<typeof fetchUserGoal>;
+  initialFoodSuggestionspromise: ReturnType<typeof fetchInitialFoodSuggestions>;
+  favoriteFoodspromise: ReturnType<typeof fetchFavoriteFoods>;
+  recentFoodspromise: ReturnType<typeof fetchRecentFoods>;
+}) => {
   return (
     <div className="col-span-full flex flex-col rounded-md bg-muted/60 backdrop-blur-md border">
       <MealLoggerHeader
