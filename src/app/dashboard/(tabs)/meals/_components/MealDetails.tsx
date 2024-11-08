@@ -116,7 +116,7 @@ const MealDetails = ({
         return (
           <DialogContent
             id="dialogContainer"
-            className="h-full max-h-[80vh] max-w-4xl overflow-hidden flex flex-col items-center justify-between"
+            className="h-full md:max-h-[80vh] max-w-4xl overflow-hidden flex flex-col items-center justify-between"
           >
             <AddFoodToMeal
               mealId={mealDetail.meal.id}
