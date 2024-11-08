@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import NutrientsProportionsChart from "./NutrientsProportionsChart";
 import { TimePicker12Demo } from "@/components/ui/time-picker/time-picker-12h-demo";
 import { useState } from "react";
+import { Label } from "@/components/ui/label";
 
 type StepsProps = {
   formData: FormData;
@@ -152,27 +153,31 @@ const MealSummary = ({
                   />
                 </div>
                 <div className="flex flex-col gap-2 w-full">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Quantity"
-                      defaultValue={Number(foodEntry.quantity)}
-                      onChange={(e) => {
-                        if (typeof Number(e.target.value) === "number") {
-                          setFormData({
-                            date: formData.date,
-                            mealType: formData.mealType,
-                            foodEntries: formData.foodEntries.map((foodEntry) =>
-                              foodEntry.foodData.food.id === food.id
-                                ? {
-                                    ...foodEntry,
-                                    quantity: Number(e.target.value),
-                                  }
-                                : foodEntry
-                            ),
-                          });
-                        }
-                      }}
-                    />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1">
+                      <Label>Number of Servings</Label>
+                      <Input
+                        placeholder="Quantity"
+                        defaultValue={Number(foodEntry.quantity)}
+                        onChange={(e) => {
+                          if (typeof Number(e.target.value) === "number") {
+                            setFormData({
+                              date: formData.date,
+                              mealType: formData.mealType,
+                              foodEntries: formData.foodEntries.map(
+                                (foodEntry) =>
+                                  foodEntry.foodData.food.id === food.id
+                                    ? {
+                                        ...foodEntry,
+                                        quantity: Number(e.target.value),
+                                      }
+                                    : foodEntry
+                              ),
+                            });
+                          }
+                        }}
+                      />
+                    </div>
                     <Select
                       defaultValue={
                         ["100", "1"].includes(foodEntry.servingSize.toString())
@@ -181,9 +186,12 @@ const MealSummary = ({
                       }
                       onValueChange={handleSelect}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a portion" />
-                      </SelectTrigger>
+                      <div className="flex flex-col gap-1">
+                        <Label>Serving Size</Label>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a portion" />
+                        </SelectTrigger>
+                      </div>
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Portion</SelectLabel>

@@ -26,6 +26,7 @@ import { addFoodToMeal } from "./actions";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDateFromSearchParams } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 type FoodResult = Awaited<ReturnType<typeof fetchFood>>;
 type FormData = {
@@ -147,20 +148,26 @@ const AddFoodDrawer = ({
           />
         </div>
         <div className="flex flex-col gap-2 w-full">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Quantity"
-              defaultValue={1}
-              onChange={(e) =>
-                typeof Number(e.target.value) === "number"
-                  ? setQuantity(Number(e.target.value))
-                  : null
-              }
-            />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex flex-col gap-1">
+              <Label>Number of Servings</Label>
+              <Input
+                placeholder="Quantity"
+                defaultValue={1}
+                onChange={(e) =>
+                  typeof Number(e.target.value) === "number"
+                    ? setQuantity(Number(e.target.value))
+                    : null
+                }
+              />
+            </div>
             <Select defaultValue="100" onValueChange={handleSelect}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a portion" />
-              </SelectTrigger>
+              <div className="flex flex-col gap-1">
+                <Label>Serving Size</Label>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a portion" />
+                </SelectTrigger>
+              </div>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Portion</SelectLabel>
