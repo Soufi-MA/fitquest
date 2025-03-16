@@ -1,0 +1,237 @@
+id,name,unitName,rank
+1120,"Cryptoxanthin, beta",µg,7460
+1122,Lycopene,µg,7530
+1127,"Tocopherol, delta",mg,8200
+1130,"Tocotrienol, gamma",mg,8500
+1131,"Tocotrienol, delta",mg,8600
+1162,"Vitamin C, total ascorbic acid",mg,6300
+1165,Thiamin,mg,6400
+1166,Riboflavin,mg,6500
+1177,"Folate, total",µg,6900
+1184,Vitamin K (Dihydrophylloquinone),µg,8900
+1185,Vitamin K (phylloquinone),µg,8800
+1257,"Fatty acids, total trans",g,15400
+1258,"Fatty acids, total saturated",g,9700
+1261,SFA 8:0,g,10000
+1263,SFA 12:0,g,10300
+1264,SFA 14:0,g,10500
+1272,PUFA 22:6 n-3 (DHA),g,15300
+1273,SFA 22:0,g,11200
+1278,PUFA 20:5 n-3 (EPA),g,15000
+1280,PUFA 22:5 n-3 (DPA),g,15200
+1300,SFA 17:0,g,10800
+1301,SFA 24:0,g,11300
+1303,TFA 16:1 t,g,15520
+1312,MUFA 24:1 c,g,12800
+1315,MUFA 18:1 c,g,12200
+1316,"PUFA 18:2 n-6 c,c",g,13200
+1317,MUFA 22:1 c,g,12600
+1323,MUFA 17:1,g,12000
+1329,"Fatty acids, total trans-monoenoic",g,15500
+1333,MUFA 15:1,g,11600
+1404,"PUFA 18:3 n-3 c,c,c (ALA)",g,14000
+1405,PUFA 20:3 n-3,g,14500
+1411,PUFA 22:4,g,15160
+1003,Protein,g,600
+1007,Ash,g,1000
+1009,Starch,g,2200
+1012,Fructose,g,1800
+1013,Lactose,g,1900
+1062,Energy,kJ,400
+1075,Galactose,g,2100
+1079,"Fiber, total dietary",g,1200
+1089,"Iron, Fe",mg,5400
+1090,"Magnesium, Mg",mg,5500
+1091,"Phosphorus, P",mg,5600
+1093,"Sodium, Na",mg,5800
+1098,"Copper, Cu",mg,6000
+1101,"Manganese, Mn",mg,6100
+1106,"Vitamin A, RAE",µg,7420
+1107,"Carotene, beta",µg,7440
+1108,"Carotene, alpha",µg,7450
+1271,PUFA 20:4,g,14700
+1276,PUFA 18:4,g,14250
+1292,"Fatty acids, total monounsaturated",g,11400
+1293,"Fatty acids, total polyunsaturated",g,12900
+1299,SFA 15:0,g,10600
+1304,TFA 18:1 t,g,15521
+1305,TFA 22:1 t,g,15550
+1306,TFA 18:2 t not further defined,g,15610
+1311,PUFA 18:2 CLAs,g,13300
+1313,"PUFA 20:2 n-6 c,c",g,14300
+1314,MUFA 16:1 c,g,11800
+1321,"PUFA 18:3 n-6 c,c,c",g,14100
+1331,"Fatty acids, total trans-polyenoic",g,15619
+1406,PUFA 20:3 n-6,g,14600
+1259,SFA 4:0,g,9800
+1260,SFA 6:0,g,9900
+1262,SFA 10:0,g,10100
+1265,SFA 16:0,g,10700
+1266,SFA 18:0,g,10900
+1267,SFA 20:0,g,11100
+1123,Lutein + zeaxanthin,µg,7560
+1125,"Tocopherol, beta",mg,8000
+1126,"Tocopherol, gamma",mg,8100
+1128,"Tocotrienol, alpha",mg,8300
+1129,"Tocotrienol, beta",mg,8400
+1167,Niacin,mg,6600
+1170,Pantothenic acid,mg,6700
+1175,Vitamin B-6,mg,6800
+1183,Vitamin K (Menaquinone-4),µg,8950
+1004,Total lipid (fat),g,800
+1005,"Carbohydrate, by difference",g,1110
+1008,Energy,kcal,300
+1010,Sucrose,g,1600
+1011,Glucose,g,1700
+1014,Maltose,g,2000
+1051,Water,g,100
+1087,"Calcium, Ca",mg,5300
+1092,"Potassium, K",mg,5700
+1095,"Zinc, Zn",mg,5900
+1103,"Selenium, Se",µg,6200
+1109,Vitamin E (alpha-tocopherol),mg,7905
+1002,Nitrogen,g,500
+2009,MUFA 14:1 c,g,11501
+2012,MUFA 20:1 c,g,12401
+2014,MUFA 22:1 n-9,g,12601
+1334,PUFA 22:2,g,15100
+1335,SFA 11:0,g,10200
+2019,TFA 18:3 t,g,15660
+1414,PUFA 20:3 n-9,g,14650
+1180,"Choline, total",mg,7220
+1197,"Choline, from glycerophosphocholine",mg,7260
+1198,Betaine,mg,7290
+1199,"Choline, from sphingomyelin",mg,7270
+1194,"Choline, free",mg,7230
+1196,"Choline, from phosphotidyl choline",mg,7250
+1195,"Choline, from phosphocholine",mg,7240
+1063,"Sugars, Total",g,1500
+1050,"Carbohydrate, by summation",g,1120
+1330,"Fatty acids, total trans-dienoic",g,15601
+2010,MUFA 17:1 c,g,12001
+2016,PUFA 18:2 c,g,13150
+2018,PUFA 18:3 c,g,13910
+2020,PUFA 20:3 c,g,14450
+2022,PUFA 20:4c,g,14750
+2023,PUFA 20:5c,g,14950
+2024,PUFA 22:5 c,g,15150
+2025,PUFA 22:6 c,g,15250
+2026,PUFA 20:2 c,g,14250
+1085,Total fat (NLEA),g,900
+2032,"Cryptoxanthin, alpha",µg,7461
+2028,trans-beta-Carotene,µg,7444
+1159,cis-beta-Carotene,µg,7442
+1161,cis-Lutein/Zeaxanthin,µg,7561
+1160,cis-Lycopene,µg,7532
+1121,Lutein,µg,7562
+1119,Zeaxanthin,µg,7564
+2066,Vitamin A,mg,7420
+1178,Vitamin B-12,µg,7300
+1105,Retinol,µg,7430
+1111,Vitamin D2 (ergocalciferol),µg,8710
+1112,Vitamin D3 (cholecalciferol),µg,8720
+1114,Vitamin D (D2 + D3),µg,8700
+1110,"Vitamin D (D2 + D3), International Units",IU,8650
+1253,Cholesterol,mg,15700
+1113,25-hydroxycholecalciferol,µg,8730
+1100,"Iodine, I",µg,6150
+1277,MUFA 20:1,g,12400
+1409,PUFA 18:3i,g,14200
+1024,Specific Gravity,sp gr,8955
+1210,Tryptophan,g,16300
+1211,Threonine,g,16400
+1215,Methionine,g,16800
+1217,Phenylalanine,g,17000
+1218,Tyrosine,g,17100
+1222,Alanine,g,17500
+1224,Glutamic acid,g,17700
+1225,Glycine,g,17800
+1226,Proline,g,17900
+1212,Isoleucine,g,16500
+1213,Leucine,g,16600
+1214,Lysine,g,16700
+1216,Cystine,g,16900
+1219,Valine,g,17200
+1220,Arginine,g,17300
+1221,Histidine,g,17400
+1223,Aspartic acid,g,17600
+1227,Serine,g,18000
+1084,"Fiber, insoluble",g,1260
+1082,"Fiber, soluble",g,1240
+1228,Hydroxyproline,g,18100
+1279,MUFA 22:1,g,12500
+1268,MUFA 18:1,g,12100
+1269,PUFA 18:2,g,13100
+1270,PUFA 18:3,g,13900
+2003,SFA 5:0,g,9850
+2004,SFA 7:0,g,9950
+2005,SFA 9:0,g,10050
+2008,MUFA 12:1,g,11450
+1281,TFA 14:1 t,g,15510
+2013,TFA 20:1 t,g,15540
+2006,SFA 21:0,g,11150
+2015,MUFA 22:1 n-11,g,12602
+2007,SFA 23:0,g,11250
+2021,PUFA 22:3,g,14675
+1232,Cysteine,g,18150
+1191,10-Formyl folic acid (10HCOFA),µg,999999
+1192,5-Formyltetrahydrofolic acid (5-HCOH4,µg,999999
+1188,5-methyl tetrahydrofolate (5-MTHF),µg,999999
+1117,Phytofluene,µg,7580
+1116,Phytoene,µg,7570
+2029,trans-Lycopene,µg,7534
+1137,"Boron, B",µg,6245
+1097,"Cobalt, Co",µg,6244
+1102,"Molybdenum, Mo",µg,6243
+1146,"Nickel, Ni",µg,6242
+1094,"Sulfur, S",mg,6241
+1325,PUFA 20:3,g,14400
+1176,Biotin,µg,6850
+1288,Beta-sitosterol,mg,16200
+1287,Brassicasterol,mg,16100
+1289,Campestanol,mg,16221
+1286,Campesterol,mg,16000
+1296,Delta-5-avenasterol,mg,16224
+1298,"Phytosterols, other",mg,16227
+1294,Beta-sitostanol,mg,16222
+1285,Stigmasterol,mg,15900
+2033,Total dietary fiber (AOAC 2011.25),g,1300
+1032,Citric acid,mg,3500
+1039,Malic acid,mg,4200
+2000,Total Sugars,g,1510
+2047,Energy (Atwater General Factors),kcal,280
+2048,Energy (Atwater Specific Factors),kcal,290
+2052,Delta-7-Stigmastenol,mg,16226
+2053,Stigmastadiene,mg,15801
+2017,TFA 18:2 t,g,15611
+1284,Ergosterol,mg,16220
+2057,Ergothioneine,mg,16255
+2059,Vitamin D4,µg,8730
+2060,Ergosta-7-enol,mg,16210
+2061," Ergosta-7,22-dienol",mg,16211
+2062," Ergosta-5,7-dienol",mg,16211
+2058,Beta-glucan,g,1327
+2069,Glutathione,mg,9000
+2049,Daidzin,mg,19310
+2050,Genistin,mg,19320
+2051,Glycitin,mg,19330
+2063,Verbascose,g,2450
+1076,Raffinose,g,2300
+1077,Stachyose,g,2400
+1340,Daidzein,mg,19100
+1341,Genistein,mg,19200
+1118,"Carotene, gamma",µg,7455
+1041,Oxalic acid,mg,4400
+1044,Quinic acid,mg,4700
+2065,Low Molecular Weight Dietary Fiber (LMWDF),g,1306
+2038,High Molecular Weight Dietary Fiber (HMWDF),g,1305
+1043,Pyruvic acid,mg,4600
+1018,"Alcohol, ethyl",g,18200
+1057,Caffeine,mg,18300
+1058,Theobromine,mg,18400
+1186,Folic acid,µg,7000
+1187,"Folate, food",µg,7100
+1190,"Folate, DFE",µg,7200
+1242,"Vitamin E, added",mg,7920
+1246,"Vitamin B-12, added",µg,7340
+1275,MUFA 16:1,g,11700

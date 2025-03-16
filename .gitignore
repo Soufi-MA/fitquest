@@ -45,5 +45,5 @@ yarn-error.log*
 /designs
 
 # seed
-src/db/seed
+# src/db/seed
 /drizzle
