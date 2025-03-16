@@ -1,18 +1,15 @@
 import {
   text,
-  pgTableCreator,
   decimal,
   integer,
-  primaryKey,
   uuid,
   pgEnum,
   AnyPgColumn,
-  index,
   timestamp,
+  pgTable,
 } from "drizzle-orm/pg-core";
 import { userTable } from "./user";
 import { timestampMixin } from "@/lib/utils";
-import { sql } from "drizzle-orm";
 
 export const FoodDataType = pgEnum("data_type", [
   "Branded",
@@ -26,51 +23,33 @@ export const MealTypeEnum = pgEnum("meal_type", [
   "Snack",
 ]);
 
-const createTable = pgTableCreator((name) => `fitquest_${name}`);
-
-export const nutrientTable = createTable("nutrient", {
+export const nutrientTable = pgTable("nutrient", {
   id: integer("id").primaryKey(),
   name: text("name").notNull(),
   unitName: text("unit_name").notNull(),
   rank: integer("rank").$type<number>().notNull(),
 });
 
-export const foodTable = createTable(
-  "food",
-  {
-    id: integer("id").generatedByDefaultAsIdentity().primaryKey(),
-    description: text("description").notNull(),
-    dataType: FoodDataType("data_type"),
-  },
-  (table) => ({
-    descriptionSearchIndex: index("description_search_index").using(
-      "gin",
-      sql`to_tsvector('english', ${table.description})`
-    ),
-  })
-);
+export const foodTable = pgTable("food", {
+  id: integer("id").primaryKey(),
+  description: text("description").notNull(),
+  dataType: FoodDataType("data_type"),
+});
 
-export const foodNutrientTable = createTable(
-  "food_nutrient",
-  {
-    foodId: integer("food_id")
-      .notNull()
-      .references(() => foodTable.id, { onDelete: "cascade" }),
-    nutrientId: integer("nutrient_id")
-      .notNull()
-      .references(() => nutrientTable.id, { onDelete: "cascade" }),
-    amount: decimal("amount", { precision: 7, scale: 2 })
-      .$type<number>()
-      .notNull(),
-  },
-  (table) => {
-    return {
-      pk: primaryKey({ columns: [table.foodId, table.nutrientId] }),
-    };
-  }
-);
+export const foodNutrientTable = pgTable("food_nutrient", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  foodId: integer("food_id")
+    .notNull()
+    .references(() => foodTable.id, { onDelete: "cascade" }),
+  nutrientId: integer("nutrient_id")
+    .notNull()
+    .references(() => nutrientTable.id, { onDelete: "cascade" }),
+  amount: decimal("amount", { precision: 7, scale: 2 })
+    .$type<number>()
+    .notNull(),
+});
 
-export const foodPortionTable = createTable("food_portion", {
+export const foodPortionTable = pgTable("food_portion", {
   id: uuid("id").defaultRandom().primaryKey(),
   foodId: integer("food_id")
     .notNull()
@@ -85,7 +64,7 @@ export const foodPortionTable = createTable("food_portion", {
   householdServingFullText: text("household_serving_full_text").notNull(),
 });
 
-export const mealTable = createTable("meal", {
+export const mealTable = pgTable("meal", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: integer("user_id")
     .notNull()
@@ -112,7 +91,7 @@ export const mealTable = createTable("meal", {
   ...timestampMixin(),
 });
 
-export const mealFoodTable = createTable("meal_food", {
+export const mealFoodTable = pgTable("meal_food", {
   id: uuid("id").defaultRandom().primaryKey(),
   mealId: uuid("meal_id")
     .notNull()
@@ -133,5 +112,8 @@ export const mealFoodTable = createTable("meal_food", {
 });
 
 export type Food = typeof foodTable.$inferSelect;
+export type Nutrient = typeof nutrientTable.$inferSelect;
+export type FoodNutrient = typeof foodNutrientTable.$inferSelect;
+export type FoodPortion = typeof foodPortionTable.$inferSelect;
 export type Meal = typeof mealTable.$inferInsert;
 export type MealFoods = typeof mealFoodTable.$inferInsert;

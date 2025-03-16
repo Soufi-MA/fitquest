@@ -2,13 +2,13 @@ import { sql } from "drizzle-orm";
 import {
   timestamp,
   text,
-  pgTableCreator,
   date,
   uuid,
   decimal,
-  primaryKey,
   uniqueIndex,
   integer,
+  pgTable,
+  unique,
 } from "drizzle-orm/pg-core";
 import { foodTable } from "./food";
 import {
@@ -23,9 +23,7 @@ import {
   weightUnitEnum,
 } from "./enums";
 
-const createTable = pgTableCreator((name) => `fitquest_${name}`);
-
-export const userTable = createTable("user", {
+export const userTable = pgTable("user", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   name: text("name"),
   email: text("email").unique(),
@@ -44,7 +42,7 @@ export const userTable = createTable("user", {
     .notNull(),
 });
 
-export const sessionTable = createTable("session", {
+export const sessionTable = pgTable("session", {
   id: text("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
@@ -55,7 +53,7 @@ export const sessionTable = createTable("session", {
   }).notNull(),
 });
 
-export const goalTable = createTable(
+export const goalTable = pgTable(
   "goal",
   {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -84,9 +82,10 @@ export const goalTable = createTable(
   })
 );
 
-export const accountTable = createTable(
+export const accountTable = pgTable(
   "account",
   {
+    id: uuid("id").defaultRandom().primaryKey(),
     providerId: text("provider_id").notNull(),
     providerUserId: text("provider_user_id").notNull(),
     userId: integer("user_id")
@@ -95,12 +94,15 @@ export const accountTable = createTable(
   },
   (table) => {
     return {
-      pk: primaryKey({ columns: [table.providerId, table.providerUserId] }),
+      uniqueProvider: unique("provider_unique").on(
+        table.providerId,
+        table.providerUserId
+      ),
     };
   }
 );
 
-export const preferenceTable = createTable("preference", {
+export const preferenceTable = pgTable("preference", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: integer("user_id")
     .references(() => userTable.id, { onDelete: "cascade" })
@@ -110,7 +112,7 @@ export const preferenceTable = createTable("preference", {
   weightUnit: weightUnitEnum("weight_unit").notNull(),
 });
 
-export const userFavoriteFoodsTable = createTable(
+export const userFavoriteFoodsTable = pgTable(
   "user_favorite_foods",
   {
     id: uuid("id").defaultRandom().primaryKey(),
@@ -133,7 +135,7 @@ export const userFavoriteFoodsTable = createTable(
   }
 );
 
-export const userRecentFoodsTable = createTable(
+export const userRecentFoodsTable = pgTable(
   "user_recent_foods",
   {
     id: uuid("id").defaultRandom().primaryKey(),
