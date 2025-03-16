@@ -1,7 +1,7 @@
 # Features
 
 - body metrics
-- Meal logger
+- Meal logger X
 - Exercise logger
 - goal setter
 - leveling/daily quests
