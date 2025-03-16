@@ -1,4 +1,4 @@
-Features:
+# Features
 
 - body metrics
 - Meal logger
@@ -9,10 +9,12 @@ Features:
 - social features
 - analytics and insights
 
-Dashboard layout
+# Dashboard layout
 
 - Home:
 - Meals:
 - Workouts:
 - Quests:
 - Friends:
+
+# Landing Page
