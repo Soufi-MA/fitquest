@@ -1,5 +1,5 @@
 {
-  "name": "fitquest-t3",
+  "name": "fitquest",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -34,6 +34,7 @@
     "arctic": "^2.0.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "csv-parse": "^5.6.0",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.33.0",
     "lucide-react": "^0.446.0",
@@ -58,7 +59,7 @@
     "@types/pg": "^8.11.10",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "drizzle-kit": "^0.24.2",
     "eslint": "^9.13.0",
     "eslint-config-next": "15.0.1",
