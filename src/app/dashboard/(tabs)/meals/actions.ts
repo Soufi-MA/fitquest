@@ -54,9 +54,7 @@ export const fetchFoods = async (query: string) => {
   const foods = await db
     .select()
     .from(foodTable)
-    .where(
-      sql`to_tsvector('english', ${foodTable.description}) @@ plainto_tsquery('english', ${query})`
-    )
+    .where(sql`${foodTable.description} ilike ${"%" + query + "%"}`)
     .orderBy(
       sql`
       CASE 
