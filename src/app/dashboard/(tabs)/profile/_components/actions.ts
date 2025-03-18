@@ -34,6 +34,7 @@ export const updateUser = async (data: UpdateUserValidator) => {
         weight: data.weight,
         name: data.name,
       })
+      .where(eq(userTable.id, user.id))
       .returning({ updatedUserId: userTable.id });
 
     await tx
